@@ -121,13 +121,13 @@ if __name__ == '__main__':
         with open("folds/yolov5_train_fold{}.txt".format(fold), "w") as yv5_tf:
             with open("folds/effdet_train_fold{}.txt".format(fold), "w") as effdet_tf:
                 for _, row in train_df.iterrows():
-                    image_path = f'{image_source}/train/{row['imageid']}.jpg'
+                    image_path = f"{image_source}/train/{row['imageid']}.jpg"
                     yv5_tf.write(image_path + '\n')
                     effdet_tf.write(row['imageid'] + '\n')
 
         with open("folds/yolov5_valid_fold{}.txt".format(fold), "w") as yv5_vf:
             with open("folds/effdet_valid_fold{}.txt".format(fold), "w") as effdet_vf:
                 for _, row in val_df.iterrows():
-                    image_path = f'{image_source}/train/{row['imageid']}.jpg'
+                    image_path = f"{image_source}/train/{row['imageid']}.jpg"
                     yv5_vf.write(image_path + '\n')
                     effdet_vf.write(row['imageid'] + '\n')
