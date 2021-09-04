@@ -49,11 +49,11 @@ if __name__ == '__main__':
         with open("../../dataset/lung_crop/yolov5_train_fold{}.txt".format(fold), "w") as yv5_tf:
             for _, row in train_df.iterrows():
                 #image_path = '../../dataset/lung_crop/images/train/{}.png'.format(row['imageid'])
-                image_path = f'{image_source}/train/{row['imageid']}.jpg'
+                image_path = f"{image_source}/train/{row['imageid']}.jpg"
                 yv5_tf.write(image_path + '\n')
 
         with open("../../dataset/lung_crop/yolov5_valid_fold{}.txt".format(fold), "w") as yv5_vf:
             for _, row in val_df.iterrows():
                 #image_path = '../../dataset/lung_crop/images/train/{}.png'.format(row['imageid'])
-                image_path = f'{image_source}/train/{row['imageid']}.jpg'
+                image_path = f"{image_source}/train/{row['imageid']}.jpg"
                 yv5_vf.write(image_path + '\n')
