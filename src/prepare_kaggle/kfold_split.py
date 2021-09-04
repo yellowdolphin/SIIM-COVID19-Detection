@@ -22,7 +22,7 @@ if __name__ == '__main__':
     image_df = pd.read_csv(competition_path/'train_image_level.csv')
     image_df['id'] = image_df.apply(lambda row: row.id.split('_')[0], axis=1)
 
-    train_meta_df = pd.read_csv('train_meta.csv')
+    train_meta_df = pd.read_csv('../../dataset/siim-covid19-detection/train_meta.csv')
     meta_columns = train_meta_df.columns.values.tolist()
 
     x = []
@@ -70,5 +70,5 @@ if __name__ == '__main__':
             outputs.append(meta_value+study_value+[image_label, hasbox, fold])
 
     kfold_df = pd.DataFrame(data=np.array(outputs), columns=[meta_columns+study_classes+['label', 'hasbox', 'fold']])
-    kfold_df.to_csv('train_kfold.csv', index=False)
+    kfold_df.to_csv('../../dataset/siim-covid19-detection/train_kfold.csv', index=False)
 

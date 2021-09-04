@@ -7,18 +7,18 @@ image_source = '/kaggle/input/siim-covid19-resized-to-1024px-jpg'
 os.makedirs('lung_crop', exist_ok=True)
 
 if __name__ == '__main__':
-    df = pd.read_csv('train_kfold.csv')
+    df = pd.read_csv('../../dataset/siim-covid19-detection/train_kfold.csv')
 
     for fold in range(5):
         tmp_df = df.loc[df['fold'] == fold]
 
         meles = []
         for _, row in tqdm(tmp_df.iterrows(), total=len(tmp_df)):
-            #image_path = f'{image_source}/train/{row['imageid']}.jpg'
-            ann_path = 'lung_crop/labels/train/{}.xml'.format(row['imageid'])
-            yolo_ann_path = 'lung_crop/labels/train/{}.txt'.format(row['imageid'])
+            #image_path = f"{image_source}/train/{row['imageid']}.jpg"
+            ann_path = '../../dataset/lung_crop/labels/train/{}.xml'.format(row['imageid'])
+            yolo_ann_path = '../../dataset/lung_crop/labels/train/{}.txt'.format(row['imageid'])
             
-            tree=ET.parse(open(ann_path))
+            tree = ET.parse(open(ann_path))
             root = tree.getroot()
             size = root.find('size')
             width = int(size.find('width').text)
@@ -46,13 +46,13 @@ if __name__ == '__main__':
         val_df = df.loc[df['fold'] == fold].sample(frac=1).reset_index(drop=True)
         train_df = df.loc[df['fold'] != fold].sample(frac=1).reset_index(drop=True)
         
-        with open("lung_crop/yolov5_train_fold{}.txt".format(fold), "w") as yv5_tf:
+        with open("../../dataset/lung_crop/yolov5_train_fold{}.txt".format(fold), "w") as yv5_tf:
             for _, row in train_df.iterrows():
                 #image_path = '../../dataset/lung_crop/images/train/{}.png'.format(row['imageid'])
                 image_path = f'{image_source}/train/{row['imageid']}.jpg'
                 yv5_tf.write(image_path + '\n')
 
-        with open("lung_crop/yolov5_valid_fold{}.txt".format(fold), "w") as yv5_vf:
+        with open("../../dataset/lung_crop/yolov5_valid_fold{}.txt".format(fold), "w") as yv5_vf:
             for _, row in val_df.iterrows():
                 #image_path = '../../dataset/lung_crop/images/train/{}.png'.format(row['imageid'])
                 image_path = f'{image_source}/train/{row['imageid']}.jpg'

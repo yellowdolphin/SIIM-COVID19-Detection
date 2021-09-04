@@ -63,7 +63,7 @@ if __name__ == '__main__':
     test_df = pd.DataFrame(
         data=np.array(results), 
         columns=['patientid', 'studyid', 'series_id', 'imageid', 'SeriesNumber', 'InstanceNumber'])
-    test_df.to_csv('test_meta.csv', index=False)
+    test_df.to_csv('../../dataset/siim-covid19-detection/test_meta.csv', index=False)
 
 
     ################ TRAIN ################
@@ -83,4 +83,4 @@ if __name__ == '__main__':
     train_df = pd.DataFrame(
         data=np.array(results), 
         columns=['patientid', 'studyid', 'series_id', 'imageid', 'SeriesNumber', 'InstanceNumber'])
-    train_df.to_csv('train_meta.csv', index=False)
+    train_df.to_csv('../../dataset/siim-covid19-detection/train_meta.csv', index=False)

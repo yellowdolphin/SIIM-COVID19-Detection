@@ -7,10 +7,8 @@ from multiprocessing import Pool
 image_source = '/kaggle/input/siim-covid19-resized-to-1024px-jpg'
 
 def create_ann(ele):
-    #ann_path = '../../dataset/siim-covid19-detection/labels/train/{}.xml'.format(ele.imageid)
-    #label_path = '../../dataset/siim-covid19-detection/labels/train/{}.txt'.format(ele.imageid)
-    ann_path = 'labels/train/{}.xml'.format(ele.imageid)
-    label_path = 'labels/train/{}.txt'.format(ele.imageid)
+    ann_path = '../../dataset/siim-covid19-detection/labels/train/{}.xml'.format(ele.imageid)
+    label_path = '../../dataset/siim-covid19-detection/labels/train/{}.txt'.format(ele.imageid)
 
     image = cv2.imread(ele.image_path)
     height, width = image.shape[0:2]
@@ -80,10 +78,10 @@ class ME:
         self.boxes = boxes
 
 if __name__ == '__main__':
-    os.makedirs('labels/train', exist_ok=True)
-    os.makedirs('folds', exist_ok=True)
+    os.makedirs('../../dataset/siim-covid19-detection/labels/train', exist_ok=True)
+    os.makedirs('../../dataset/siim-covid19-detection/folds', exist_ok=True)
 
-    df = pd.read_csv('train_kfold.csv')
+    df = pd.read_csv('../../dataset/siim-covid19-detection/train_kfold.csv')
     df = df.loc[df['hasbox'] == True].reset_index(drop=True)
     for fold in range(5):
         tmp_df = df.loc[df['fold'] == fold]
@@ -118,15 +116,15 @@ if __name__ == '__main__':
         val_df = df.loc[df['fold'] == fold].sample(frac=1).reset_index(drop=True)
         train_df = df.loc[df['fold'] != fold].sample(frac=1).reset_index(drop=True)
         
-        with open("folds/yolov5_train_fold{}.txt".format(fold), "w") as yv5_tf:
-            with open("folds/effdet_train_fold{}.txt".format(fold), "w") as effdet_tf:
+        with open("../../dataset/siim-covid19-detection/folds/yolov5_train_fold{}.txt".format(fold), "w") as yv5_tf:
+            with open("../../dataset/siim-covid19-detection/folds/effdet_train_fold{}.txt".format(fold), "w") as effdet_tf:
                 for _, row in train_df.iterrows():
                     image_path = f"{image_source}/train/{row['imageid']}.jpg"
                     yv5_tf.write(image_path + '\n')
                     effdet_tf.write(row['imageid'] + '\n')
 
-        with open("folds/yolov5_valid_fold{}.txt".format(fold), "w") as yv5_vf:
-            with open("folds/effdet_valid_fold{}.txt".format(fold), "w") as effdet_vf:
+        with open("../../dataset/siim-covid19-detection/folds/yolov5_valid_fold{}.txt".format(fold), "w") as yv5_vf:
+            with open("../../dataset/siim-covid19-detection/folds/effdet_valid_fold{}.txt".format(fold), "w") as effdet_vf:
                 for _, row in val_df.iterrows():
                     image_path = f"{image_source}/train/{row['imageid']}.jpg"
                     yv5_vf.write(image_path + '\n')
