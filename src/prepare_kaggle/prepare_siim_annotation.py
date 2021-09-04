@@ -90,7 +90,7 @@ if __name__ == '__main__':
 
         meles = []
         for _, row in tmp_df.iterrows():
-            image_path = f'{image_source}/train/{row['imageid']}.jpg'
+            image_path = f"{image_source}/train/{row['imageid']}.jpg"
 
             arr = row['label'].split(' ')
             nums = len(arr) // 6
