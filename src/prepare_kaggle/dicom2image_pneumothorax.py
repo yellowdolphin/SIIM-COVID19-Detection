@@ -7,22 +7,26 @@ from multiprocessing import Pool
 
 def dicom2img(dicom_path):
     dcm_file = pydicom.read_file(dicom_path)
-    data = apply_voi_lut(dcm_file.pixel_array, dcm_file)
 
+    data = apply_voi_lut(dcm_file.pixel_array, dcm_file)
+    
     if dcm_file.PhotometricInterpretation == "MONOCHROME1":
         data = np.amax(data) - data
-
+    
     data = data - np.min(data)
     data = data / np.max(data)
     data = (data * 255).astype(np.uint8)
-
+    
     SOPInstanceUID = dcm_file.SOPInstanceUID
-
     image_path = '../../dataset/external_dataset/pneumothorax/images/{}.png'.format(SOPInstanceUID)
+
     cv2.imwrite(image_path, data)
     return image_path
     
 if __name__ == '__main__':
+    print("Script obsolete, no metadata produced, just use png images from lafoss.")
+    return
+    
     os.makedirs('../../dataset/external_dataset/pneumothorax/images', exist_ok=True)
 
     dcm_paths = []
@@ -40,5 +44,3 @@ if __name__ == '__main__':
     p = Pool(16)
     results = p.map(func=dicom2img, iterable = dcm_paths)
     p.close()
-
-    

@@ -7,10 +7,10 @@ from multiprocessing import Pool
 from pydicom.pixel_data_handlers.util import apply_voi_lut
 
 class ME:
-    def __init__(self, patientid, file_path, type):
+    def __init__(self, patientid, file_path, split):
         self.patientid = patientid
         self.file_path = file_path
-        self.type = type
+        self.split = split
 
 def dicom2image(ele):
     dcm_file = pydicom.read_file(ele.file_path)
@@ -23,34 +23,35 @@ def dicom2image(ele):
     SOPInstanceUID = dcm_file.SOPInstanceUID
     assert ele.patientid == PatientID
     
-    data = apply_voi_lut(dcm_file.pixel_array, dcm_file)
-
-    if dcm_file.PhotometricInterpretation == "MONOCHROME1":
-        data = np.amax(data) - data
-
-    data = data - np.min(data)
-    data = data / np.max(data)
-    data = (data * 255).astype(np.uint8)
-
-    image_path = '../../dataset/external_dataset/rsna-pneumonia-detection-challenge/images/{}/{}.png'.format(ele.type, PatientID)
-    cv2.imwrite(image_path, data)
+    # Use png from Andy Zhao instead
+    #data = apply_voi_lut(dcm_file.pixel_array, dcm_file)
+    #
+    #if dcm_file.PhotometricInterpretation == "MONOCHROME1":
+    #    data = np.amax(data) - data
+    #
+    #data = data - np.min(data)
+    #data = data / np.max(data)
+    #data = (data * 255).astype(np.uint8)
+    #
+    #image_path = '../../dataset/external_dataset/rsna-pneumonia-detection-challenge/images/{}/{}.png'.format(ele.split, PatientID)
+    #cv2.imwrite(image_path, data)
 
     return [StudyInstanceUID, PatientID, SOPInstanceUID, Modality, PatientSex, BodyPartExamined, ImagerPixelSpacingX, ImagerPixelSpacingY]
 
 if __name__ == '__main__':
-    os.makedirs('../../dataset/external_dataset/rsna-pneumonia-detection-challenge/images/train', exist_ok=True)
-    os.makedirs('../../dataset/external_dataset/rsna-pneumonia-detection-challenge/images/test', exist_ok=True)
+    #os.makedirs('../../dataset/external_dataset/rsna-pneumonia-detection-challenge/images/train', exist_ok=True)
+    #os.makedirs('../../dataset/external_dataset/rsna-pneumonia-detection-challenge/images/test', exist_ok=True)
 
     ################ TEST ################
     meles = []
-    df = pd.read_csv('../../dataset/external_dataset/rsna-pneumonia-detection-challenge/dicoms/stage_2_sample_submission.csv')
+    #df = pd.read_csv('../../dataset/external_dataset/rsna-pneumonia-detection-challenge/dicoms/stage_2_sample_submission.csv')
+    df = pd.read_csv('/kaggle/input/rsna-pneumonia-detection-challenge/stage_2_sample_submission.csv')
     for patientId in np.unique(df.patientId.values):
-        dcm_path = '../../dataset/external_dataset/rsna-pneumonia-detection-challenge/dicoms/stage_2_test_images/{}.dcm'.format(patientId)
+        dcm_path = '/kaggle/input/rsna-pneumonia-detection-challenge/stage_2_test_images/{}.dcm'.format(patientId)
         meles.append(ME(patientId, dcm_path, 'test'))
     
-    p = Pool(16)
-    results = p.map(func=dicom2image, iterable = meles)
-    p.close()
+    with Pool(16) as p:
+        results = p.map(func=dicom2image, iterable = meles)
     test_df = pd.DataFrame(
         data=np.array(results), 
         columns=['studyid', 'patientid', 'imageid', 'Modality', 'PatientSex', 'BodyPartExamined', 'ImagerPixelSpacingX', 'ImagerPixelSpacingY'])
@@ -58,14 +59,13 @@ if __name__ == '__main__':
 
     ################ TRAIN ################
     meles = []
-    df = pd.read_csv('../../dataset/external_dataset/rsna-pneumonia-detection-challenge/dicoms/stage_2_train_labels.csv')
+    df = pd.read_csv('/kaggle/input/rsna-pneumonia-detection-challenge/stage_2_train_labels.csv')
     for patientId in np.unique(df.patientId.values):
-        dcm_path = '../../dataset/external_dataset/rsna-pneumonia-detection-challenge/dicoms/stage_2_train_images/{}.dcm'.format(patientId)
+        dcm_path = '/kaggle/input/rsna-pneumonia-detection-challenge/stage_2_train_images/{}.dcm'.format(patientId)
         meles.append(ME(patientId, dcm_path, 'train'))
 
-    p = Pool(16)
-    results = p.map(func=dicom2image, iterable = meles)
-    p.close()
+    with Pool(16) as p:
+        results = p.map(func=dicom2image, iterable = meles)
     train_df = pd.DataFrame(
         data=np.array(results), 
         columns=['studyid', 'patientid', 'imageid', 'Modality', 'PatientSex', 'BodyPartExamined', 'ImagerPixelSpacingX', 'ImagerPixelSpacingY'])
