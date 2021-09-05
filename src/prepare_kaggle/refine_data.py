@@ -53,5 +53,6 @@ if __name__ == '__main__':
     file_exists = padchest_df.source_path.map(os.path.exists)
     print(f"PadChest: found {sum(file_exists)} / {len(padchest_df)} images")
     print(f"          creating symb links in dataset/external_dataset/padchest/images ...")
+    os.makedirs('../../dataset/external_dataset/padchest/images', exist_ok=True)
     for index, (src, target) in padchest_df.loc[file_exists, ['source_path', 'image_path']].iterrows():
         os.symlink(src, target)
