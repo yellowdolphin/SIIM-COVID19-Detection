@@ -87,9 +87,11 @@ if __name__ == '__main__':
     df = df.loc[df['Target'] == 1].reset_index(drop=True)
 
     meles = []
+    n_missing = 0
     for patientId, grp in df.groupby('patientId'):
         #image_path = '../../dataset/external_dataset/rsna-pneumonia-detection-challenge/images/train/{}.png'.format(patientId)
         image_path = f'{image_source}/train/{patientId}.png'
+        if not os.path.exists(image_path): n_missing += 1
         boxes = []
         for _, row in grp.iterrows():
             x,y,width,height = float(row['x']), float(row['y']), float(row['width']), float(row['height'])
@@ -102,6 +104,7 @@ if __name__ == '__main__':
             boxes.append([x1, y1, x2, y2])
         if len(boxes) > 0:
             meles.append(ME(image_path, patientId, boxes))
+    print(f"{len(meles)} png files found, {n_missing} missing")
 
     with Pool(cpu_count()) as p:
         results = p.map(func=create_ann, iterable=meles)
