@@ -2,7 +2,7 @@ import pandas as pd
 import cv2
 import os
 from lxml.etree import Element, SubElement, ElementTree
-from multiprocessing import Pool
+from multiprocessing import Pool, cpu_count
 
 image_source = '../input/covidx-cxr2'
 
@@ -102,5 +102,5 @@ if __name__ == '__main__':
         if len(boxes) > 0:
             meles.append(ME(image_path, patientId, boxes))
 
-    with Pool(16) as p:
+    with Pool(cpu_count()) as p:
         results = p.map(func=create_ann, iterable = meles)

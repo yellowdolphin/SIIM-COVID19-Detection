@@ -3,7 +3,7 @@ import os
 import numpy as np
 import pydicom
 import cv2
-from multiprocessing import Pool
+from multiprocessing import Pool, cpu_count
 from pydicom.pixel_data_handlers.util import apply_voi_lut
 
 class ME:
@@ -50,7 +50,7 @@ if __name__ == '__main__':
         dcm_path = '/kaggle/input/rsna-pneumonia-detection-challenge/stage_2_test_images/{}.dcm'.format(patientId)
         meles.append(ME(patientId, dcm_path, 'test'))
     
-    with Pool(16) as p:
+    with Pool(cpu_count()) as p:
         results = p.map(func=dicom2image, iterable = meles)
     test_df = pd.DataFrame(
         data=np.array(results), 
@@ -64,7 +64,7 @@ if __name__ == '__main__':
         dcm_path = '/kaggle/input/rsna-pneumonia-detection-challenge/stage_2_train_images/{}.dcm'.format(patientId)
         meles.append(ME(patientId, dcm_path, 'train'))
 
-    with Pool(16) as p:
+    with Pool(cpu_count()) as p:
         results = p.map(func=dicom2image, iterable = meles)
     train_df = pd.DataFrame(
         data=np.array(results), 

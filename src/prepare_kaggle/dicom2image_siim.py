@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 import pydicom
 import cv2
-from multiprocessing import Pool
+from multiprocessing import Pool, cpu_count
 from pydicom.pixel_data_handlers.util import apply_voi_lut
 
 competition_path = Path('/kaggle/input/siim-covid19-detection')
@@ -77,7 +77,7 @@ if __name__ == '__main__':
                 filename, file_extension = os.path.splitext(file_path)
                 if file_extension in ['.dcm', '.dicom']:
                     meles.append(ME(StudyInstanceUID, file_path, 'train'))
-    p = Pool(16)
+    p = Pool(cpu_count())
     results = p.map(func=dicom2image, iterable = meles)
     p.close()
     train_df = pd.DataFrame(

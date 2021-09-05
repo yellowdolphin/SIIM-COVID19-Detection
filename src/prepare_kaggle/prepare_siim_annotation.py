@@ -2,7 +2,7 @@ import pandas as pd
 import cv2
 import os
 from lxml.etree import Element, SubElement, ElementTree
-from multiprocessing import Pool
+from multiprocessing import Pool, cpu_count
 
 image_source = '/kaggle/input/siim-covid19-resized-to-1024px-jpg'
 
@@ -109,7 +109,7 @@ if __name__ == '__main__':
             if len(boxes) > 0:
                 meles.append(ME(image_path, row['imageid'], boxes))
         
-        with Pool(16) as p:
+        with Pool(cpu_count()) as p:
             results = p.map(func=create_ann, iterable = meles)
 
     for fold in range(5):
