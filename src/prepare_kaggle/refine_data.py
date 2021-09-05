@@ -3,14 +3,15 @@ import pandas as pd
 import numpy as np
 from tqdm import tqdm
 
-image_source = '/kaggle/input/chexpert-v10-small'
+image_source = '/kaggle/input/chexpert-v10-small/CheXpert-v1.0-small'
 padchest_source = '/kaggle/input/padchest/images-224'
 
 if __name__ == '__main__':
     ### remove unused file in chexpert dataset
     chexpert_train_df = pd.read_csv('../../dataset/external_dataset/ext_csv/chexpert_train.csv')
     chexpert_valid_df = pd.read_csv('../../dataset/external_dataset/ext_csv/chexpert_valid.csv')
-    chexpert_df = pd.concat([chexpert_train_df, chexpert_valid_df], ignore_index=False).drop_duplicates(subset='image_path')
+    chexpert_df = pd.concat([chexpert_train_df, chexpert_valid_df], ignore_index=False)
+    chexpert_df = chexpert_df.drop_duplicates(subset='image_path').reset_index(drop=True)
 
     chexpert_df['source_path'] = chexpert_df['image_path'].str.replace(
         '../../dataset/external_dataset/chexpert', image_source)
