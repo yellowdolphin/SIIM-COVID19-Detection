@@ -2,12 +2,14 @@ import numpy as np
 import pandas as pd 
 from tqdm import tqdm
 
+image_source = '/kaggle/input/vinbigdata-chest-xray-resized-png-1024x1024'
+
 if __name__ == '__main__':
-    train_df = pd.read_csv('../../dataset/external_dataset/vinbigdata/dicoms/train.csv')
+    train_df = pd.read_csv('/kaggle/input/vinbigdata-chest-xray-abnormalities-detection/train.csv')
 
     output = []
     for image_id, grp in tqdm(train_df.groupby('image_id')):
-        image_path = '../../dataset/external_dataset/vinbigdata/images/{}.png'.format(image_id)
+        image_path = f'{image_source}/train/{image_id}.png'
         nf_cnt = 0
         for rad_id, grp1 in grp.groupby('rad_id'):
             if 'No finding' in grp1.class_name.values:
