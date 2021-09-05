@@ -8,26 +8,20 @@ padchest_source = '/kaggle/input/padchest/images-224'
 
 if __name__ == '__main__':
     ### remove unused file in chexpert dataset
-    chextpert_train_df = pd.read_csv('../../dataset/external_dataset/ext_csv/chexpert_train.csv')
-    chextpert_train_df['image_path'] = chextpert_train_df['image_path'].str.replace(
+    chexpert_train_df = pd.read_csv('../../dataset/external_dataset/ext_csv/chexpert_train.csv')
+    chexpert_valid_df = pd.read_csv('../../dataset/external_dataset/ext_csv/chexpert_valid.csv')
+    chexpert_df = pd.concat([chexpert_train_df, chexpert_valid_df], ignore_index=False).drop_duplicates(subset='image_path')
+
+    chexpert_df['source_path'] = chexpert_df['image_path'].str.replace(
         '../../dataset/external_dataset/chexpert', image_source)
-    chextpert_valid_df = pd.read_csv('../../dataset/external_dataset/ext_csv/chexpert_valid.csv')
-    chextpert_valid_df['image_path'] = chextpert_valid_df['image_path'].str.replace(
-        '../../dataset/external_dataset/chexpert', image_source)
-    chextpert_df = pd.concat([chextpert_train_df, chextpert_valid_df], ignore_index=False)
-    useful_image_paths = np.unique(chextpert_df.image_path.values)
-    image_paths = []
-    #for rdir, _, files in os.walk(f'../../dataset/external_dataset/chexpert/train'):
-    for rdir, _, files in os.walk(image_source):   # or should only /train be included?
-        for file in files:
-            image_path = os.path.join(rdir, file)
-            if os.path.isfile(image_path):
-                image_paths.append(image_path)
-    print(len(chextpert_df), len(image_paths))
-    for image_path in tqdm(image_paths):
-        if image_path not in useful_image_paths:
-            os.remove(image_path)
-            print('remove {} ...'.format(image_path))
+
+    file_exists = chexpert_df.source_path.map(os.path.exists)
+
+    print(f"CheXpert: found {sum(file_exists)} / {len(chexpert_df)} images")
+    print(f"          creating symb links in dataset/external_dataset/chexpert/train ...")
+    for index, (src, target) in chexpert_df.loc[file_exists, ['source_path', 'image_path']].iterrows():
+        os.symlink(src, target)
+    print(f"          done")
     
     ### remove unused file in chest14 dataset
     # I don't use chest14 for now.
