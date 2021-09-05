@@ -10,6 +10,7 @@ def create_ann(ele):
     ann_path = '../../dataset/external_dataset/rsna-pneumonia-detection-challenge/labels/train/{}.xml'.format(ele.patientId)
     label_path = '../../dataset/external_dataset/rsna-pneumonia-detection-challenge/labels/train/{}.txt'.format(ele.patientId)
 
+    assert os.path.exists(ele.image_path), f"no file {ele.image_path}"
     image = cv2.imread(ele.image_path)
     height, width = image.shape[0:2]
 
@@ -103,4 +104,4 @@ if __name__ == '__main__':
             meles.append(ME(image_path, patientId, boxes))
 
     with Pool(cpu_count()) as p:
-        results = p.map(func=create_ann, iterable = meles)
+        results = p.map(func=create_ann, iterable=meles)
