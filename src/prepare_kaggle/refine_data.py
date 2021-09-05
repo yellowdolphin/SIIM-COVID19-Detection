@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import pandas as pd 
 import numpy as np
 from tqdm import tqdm
@@ -16,13 +17,15 @@ if __name__ == '__main__':
     chexpert_df['source_path'] = chexpert_df['image_path'].str.replace(
         '../../dataset/external_dataset/chexpert', image_source)
 
+    print(f"CheXpert: searching for images in {image_source} ...")
     file_exists = chexpert_df.source_path.map(os.path.exists)
 
-    print(f"CheXpert: found {sum(file_exists)} / {len(chexpert_df)} images")
+    print(f"          found {sum(file_exists)} / {len(chexpert_df)} images")
     print(f"          creating symb links in dataset/external_dataset/chexpert/train ...")
     for index, (src, target) in chexpert_df.loc[file_exists, ['source_path', 'image_path']].iterrows():
+        os.makedirs(Path(target).parent, exist_ok=True) 
         os.symlink(src, target)
-    print(f"          done")
+    print(f"          all done")
     
     ### remove unused file in chest14 dataset
     # I don't use chest14 for now.
