@@ -56,3 +56,4 @@ if __name__ == '__main__':
     os.makedirs('../../dataset/external_dataset/padchest/images', exist_ok=True)
     for index, (src, target) in padchest_df.loc[file_exists, ['source_path', 'image_path']].iterrows():
         os.symlink(src, target)
+    print(f"          all done")
