@@ -4,6 +4,7 @@ import os
 from lxml.etree import Element, SubElement, ElementTree
 from multiprocessing import Pool
 
+image_source = '../input/covidx-cxr2'
 
 def create_ann(ele):
     ann_path = '../../dataset/external_dataset/rsna-pneumonia-detection-challenge/labels/train/{}.xml'.format(ele.patientId)
@@ -81,12 +82,13 @@ class ME:
 if __name__ == '__main__':
     os.makedirs('../../dataset/external_dataset/rsna-pneumonia-detection-challenge/labels/train', exist_ok=True)
 
-    df = pd.read_csv('../../dataset/external_dataset/rsna-pneumonia-detection-challenge/dicoms/stage_2_train_labels.csv')
+    df = pd.read_csv('/kaggle/input/rsna-pneumonia-detection-challenge/stage_2_train_labels.csv')
     df = df.loc[df['Target'] == 1].reset_index(drop=True)
 
     meles = []
     for patientId, grp in df.groupby('patientId'):
-        image_path = '../../dataset/external_dataset/rsna-pneumonia-detection-challenge/images/train/{}.png'.format(patientId)
+        #image_path = '../../dataset/external_dataset/rsna-pneumonia-detection-challenge/images/train/{}.png'.format(patientId)
+        image_path = '{image_source}/train/{patientId}.png'
         boxes = []
         for _, row in grp.iterrows():
             x,y,width,height = float(row['x']), float(row['y']), float(row['width']), float(row['height'])
@@ -100,6 +102,5 @@ if __name__ == '__main__':
         if len(boxes) > 0:
             meles.append(ME(image_path, patientId, boxes))
 
-    p = Pool(16)
-    results = p.map(func=create_ann, iterable = meles)
-    p.close()
+    with Pool(16) as p:
+        results = p.map(func=create_ann, iterable = meles)
