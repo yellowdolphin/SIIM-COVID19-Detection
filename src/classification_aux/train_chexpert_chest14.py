@@ -79,6 +79,10 @@ if __name__ == "__main__":
 
         print('TRAIN: {} | VALID: {}'.format(len(train_loader.dataset), len(valid_loader.dataset)))
 
+        res = next(iter(train_loader))
+        print("First train_loader batch:", len(res), "elements")
+        print(res)
+
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         model = PretrainModel(
@@ -120,8 +124,7 @@ if __name__ == "__main__":
             model.train()
             train_loss = []
 
-            #loop = tqdm(train_loader)
-            loop = train_loader
+            loop = tqdm(train_loader)
             for images, labels in loop:
                 images = images.to(device)
                 labels = labels.to(device)
@@ -137,8 +140,8 @@ if __name__ == "__main__":
                 scaler.update()
 
                 train_loss.append(loss.item())
-                #loop.set_description('Epoch {:02d}/{:02d} | LR: {:.5f}'.format(epoch, epochs-1, optimizer.param_groups[0]['lr']))
-                #loop.set_postfix(loss=np.mean(train_loss))
+                loop.set_description('Epoch {:02d}/{:02d} | LR: {:.5f}'.format(epoch, epochs-1, optimizer.param_groups[0]['lr']))
+                loop.set_postfix(loss=np.mean(train_loss))
             train_loss = np.mean(train_loss)
 
             model.eval()
