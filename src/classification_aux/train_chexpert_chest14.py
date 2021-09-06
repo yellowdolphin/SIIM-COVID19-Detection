@@ -40,7 +40,7 @@ if __name__ == "__main__":
             print('Train chexpert')
             train_df = pd.read_csv('../../dataset/external_dataset/ext_csv/chexpert_train.csv')
             valid_df = pd.read_csv('../../dataset/external_dataset/ext_csv/chexpert_valid.csv')
-            images_dir='.'
+            images_dir = None
             batch_size = cfg['chexpert_batch_size']
             image_size = cfg['chexpert_image_size']
             dst_classes = chexpert_classes

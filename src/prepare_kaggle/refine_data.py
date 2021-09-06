@@ -9,23 +9,25 @@ padchest_source = '/kaggle/input/padchest/images-224'
 
 if __name__ == '__main__':
     ### remove unused file in chexpert dataset
-    # Avoid copy of image_sorce and sym links (inefficient), update csv file instead.
-    chexpert_train_df = pd.read_csv('../../dataset/external_dataset/ext_csv/chexpert_train.csv')
-    chexpert_valid_df = pd.read_csv('../../dataset/external_dataset/ext_csv/chexpert_valid.csv')
-    chexpert_df = pd.concat([chexpert_train_df, chexpert_valid_df], ignore_index=False)
-    chexpert_df = chexpert_df.drop_duplicates(subset='image_path').reset_index(drop=True)
+    # Avoid copy of image_sorce and sym links (inefficient), update csv files instead.
+    all_files = []
+    for split in ['train', 'valid']:
+        df = pd.read_csv(f'../../dataset/external_dataset/ext_csv/chexpert_{split}.csv')
+        df['image_path'] = df.image_path.str.replace('../../dataset/external_dataset/chexpert', image_source)
 
-    chexpert_df['image_path'] = chexpert_df['image_path'].str.replace(
-        '../../dataset/external_dataset/chexpert', image_source)
+        print(f"CheXpert {split}: searching for images in {image_source} ...")
+        file_exists = df.image_path.map(os.path.exists)
 
-    print(f"CheXpert: searching for images in {image_source} ...")
-    file_exists = chexpert_df.image_path.map(os.path.exists)
+        print(f"    found {sum(file_exists)} / {len(chexpert_df)} images")
+        df.loc[file_exists].to_csv(csv_file)
+        print(f"    updated {csv_file}")
+        all_files.append(df.image_path.values)
 
-    print(f"          found {sum(file_exists)} / {len(chexpert_df)} images")
-    new_csv_file = '../../dataset/external_dataset/ext_csv/chexpert.csv'
-    chexpert_df.loc[file_exists].to_csv(new_csv_file)
-    print(f"          wrote {new_csv_file}")
-    print(f"          all done")
+    print("    testing for train/valid duplicates ...")
+    all_files = np.concatenate(all_files)
+    assert len(all_files) == len(set(all_files)), f'{len(all_files) - len(set(all_files))} duplicates in train + valid'
+    del all_files
+    print("    all done")
     
     ### remove unused file in chest14 dataset
     # I don't use chest14 for now.
