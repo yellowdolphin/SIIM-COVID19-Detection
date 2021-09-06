@@ -63,7 +63,8 @@ if __name__ == "__main__":
             pretrained_path = '{}/{}_{}_pretrain_step{}.pth'.format(ckpt_dir, cfg['encoder_name'], cfg['chexpert_image_size'], step-1)
             pretrained_num_classes = len(chexpert_classes)
         
-        batch_size *= torch.cuda.device_count()
+        if torch.cuda.device_count() > 0:
+            batch_size *= torch.cuda.device_count()
         
         if args.frac != 1:
             print('Quick training')
