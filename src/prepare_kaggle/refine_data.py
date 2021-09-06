@@ -18,7 +18,7 @@ if __name__ == '__main__':
         print(f"CheXpert {split}: searching for images in {image_source} ...")
         file_exists = df.image_path.map(os.path.exists)
 
-        print(f"    found {sum(file_exists)} / {len(chexpert_df)} images")
+        print(f"    found {sum(file_exists)} / {len(df)} images")
         df.loc[file_exists].to_csv(csv_file)
         print(f"    updated {csv_file}")
         all_files.append(df.image_path.values)
@@ -51,11 +51,11 @@ if __name__ == '__main__':
     
     ### remove unused and missing files in padchest dataset
     # Avoid copy of image_sorce and sym links (inefficient), update csv file instead.
-    padchest_df = pd.read_csv('../../dataset/external_dataset/ext_csv/padchest.csv').drop_duplicates()
-    padchest_df['image_path'] = padchest_df.image_path.str.replace('../../dataset/external_dataset/padchest/images', padchest_source)
-    file_exists = padchest_df.image_path.map(os.path.exists)
-    print(f"PadChest: found {sum(file_exists)} / {len(padchest_df)} images")
+    df = pd.read_csv('../../dataset/external_dataset/ext_csv/padchest.csv').drop_duplicates()
+    df['image_path'] = df.image_path.str.replace('../../dataset/external_dataset/padchest/images', padchest_source)
+    file_exists = df.image_path.map(os.path.exists)
+    print(f"PadChest: found {sum(file_exists)} / {len(df)} images")
     new_csv_file = '../../dataset/external_dataset/ext_csv/padchest.csv'
-    padchest_df.to_csv(new_csv_file)
+    df.to_csv(new_csv_file)
     print(f"          wrote {new_csv_file}")
     print(f"          all done")
