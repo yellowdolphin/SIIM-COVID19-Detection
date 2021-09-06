@@ -1,7 +1,7 @@
 encoder_name: 'timm-efficientnet-b5'
 encoder_weights: 'noisy-student'
 in_features: 2048
-workers: 2
+workers: 4
 
 chexpert_image_size: 512
 chexpert_batch_size: 12  # orig: 28
