@@ -1,12 +1,12 @@
 encoder_name: 'timm-efficientnet-b6'
 encoder_weights: 'noisy-student'
 in_features: 2304
-workers: 16
+workers: 4
 
 chexpert_image_size: 512
-chexpert_batch_size: 20
+chexpert_batch_size: 10    # orig: 20
 chexpert_init_lr: 0.00015
-chexpert_epochs: 10
+chexpert_epochs: 2         # orig: 10
 
 chest14_image_size: 512
 chest14_batch_size: 20

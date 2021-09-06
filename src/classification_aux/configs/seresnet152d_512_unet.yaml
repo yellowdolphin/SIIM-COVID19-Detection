@@ -1,12 +1,12 @@
 encoder_name: 'timm-seresnet152d_320'
 encoder_weights: 'imagenet'
 in_features: 2048
-workers: 16
+workers: 4
 
 chexpert_image_size: 512
-chexpert_batch_size: 48
+chexpert_batch_size: 24    # orig: 48
 chexpert_init_lr: 0.0001
-chexpert_epochs: 10
+chexpert_epochs: 2         # orig: 10
 
 chest14_image_size: 512
 chest14_batch_size: 48
