@@ -79,10 +79,6 @@ if __name__ == "__main__":
 
         print('TRAIN: {} | VALID: {}'.format(len(train_loader.dataset), len(valid_loader.dataset)))
 
-        res = next(iter(train_loader))
-        print("First train_loader batch:", len(res), "elements")
-        print(res)
-
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         model = PretrainModel(

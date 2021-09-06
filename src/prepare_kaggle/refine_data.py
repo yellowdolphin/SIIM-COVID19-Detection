@@ -12,7 +12,8 @@ if __name__ == '__main__':
     # Avoid copy of image_sorce and sym links (inefficient), update csv files instead.
     all_files = []
     for split in ['train', 'valid']:
-        df = pd.read_csv(f'../../dataset/external_dataset/ext_csv/chexpert_{split}.csv')
+        csv_file = f'../../dataset/external_dataset/ext_csv/chexpert_{split}.csv'
+        df = pd.read_csv(csv_file)
         df['image_path'] = df.image_path.str.replace('../../dataset/external_dataset/chexpert', image_source)
 
         print(f"CheXpert {split}: searching for images in {image_source} ...")
@@ -51,11 +52,11 @@ if __name__ == '__main__':
     
     ### remove unused and missing files in padchest dataset
     # Avoid copy of image_sorce and sym links (inefficient), update csv file instead.
-    df = pd.read_csv('../../dataset/external_dataset/ext_csv/padchest.csv').drop_duplicates()
+    csv_file = '../../dataset/external_dataset/ext_csv/padchest.csv'
+    df = pd.read_csv(csv_file).drop_duplicates()
     df['image_path'] = df.image_path.str.replace('../../dataset/external_dataset/padchest/images', padchest_source)
     file_exists = df.image_path.map(os.path.exists)
     print(f"PadChest: found {sum(file_exists)} / {len(df)} images")
-    new_csv_file = '../../dataset/external_dataset/ext_csv/padchest.csv'
-    df.to_csv(new_csv_file)
-    print(f"          wrote {new_csv_file}")
+    df.to_csv(csv_file)
+    print(f"          updated {csv_file}")
     print(f"          all done")
