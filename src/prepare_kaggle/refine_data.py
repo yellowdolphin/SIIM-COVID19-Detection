@@ -9,22 +9,22 @@ padchest_source = '/kaggle/input/padchest/images-224'
 
 if __name__ == '__main__':
     ### remove unused file in chexpert dataset
+    # Avoid copy of image_sorce and sym links (inefficient), update csv file instead.
     chexpert_train_df = pd.read_csv('../../dataset/external_dataset/ext_csv/chexpert_train.csv')
     chexpert_valid_df = pd.read_csv('../../dataset/external_dataset/ext_csv/chexpert_valid.csv')
     chexpert_df = pd.concat([chexpert_train_df, chexpert_valid_df], ignore_index=False)
     chexpert_df = chexpert_df.drop_duplicates(subset='image_path').reset_index(drop=True)
 
-    chexpert_df['source_path'] = chexpert_df['image_path'].str.replace(
+    chexpert_df['image_path'] = chexpert_df['image_path'].str.replace(
         '../../dataset/external_dataset/chexpert', image_source)
 
     print(f"CheXpert: searching for images in {image_source} ...")
-    file_exists = chexpert_df.source_path.map(os.path.exists)
+    file_exists = chexpert_df.image_path.map(os.path.exists)
 
     print(f"          found {sum(file_exists)} / {len(chexpert_df)} images")
-    print(f"          creating symb links in dataset/external_dataset/chexpert/train ...")
-    for index, (src, target) in chexpert_df.loc[file_exists, ['source_path', 'image_path']].iterrows():
-        os.makedirs(Path(target).parent, exist_ok=True) 
-        os.symlink(src, target)
+    new_csv_file = '../../dataset/external_dataset/ext_csv/chexpert.csv'
+    chexpert_df.loc[file_exists].to_csv(new_csv_file)
+    print(f"          wrote {new_csv_file}")
     print(f"          all done")
     
     ### remove unused file in chest14 dataset
@@ -48,12 +48,12 @@ if __name__ == '__main__':
     #        print('remove {} ...'.format(image_path))
     
     ### remove unused and missing files in padchest dataset
+    # Avoid copy of image_sorce and sym links (inefficient), update csv file instead.
     padchest_df = pd.read_csv('../../dataset/external_dataset/ext_csv/padchest.csv').drop_duplicates()
-    padchest_df['source_path'] = padchest_df.image_path.str.replace('../../dataset/external_dataset/padchest/images', padchest_source)
-    file_exists = padchest_df.source_path.map(os.path.exists)
+    padchest_df['image_path'] = padchest_df.image_path.str.replace('../../dataset/external_dataset/padchest/images', padchest_source)
+    file_exists = padchest_df.image_path.map(os.path.exists)
     print(f"PadChest: found {sum(file_exists)} / {len(padchest_df)} images")
-    print(f"          creating symb links in dataset/external_dataset/padchest/images ...")
-    os.makedirs('../../dataset/external_dataset/padchest/images', exist_ok=True)
-    for index, (src, target) in padchest_df.loc[file_exists, ['source_path', 'image_path']].iterrows():
-        os.symlink(src, target)
+    new_csv_file = '../../dataset/external_dataset/ext_csv/padchest.csv'
+    padchest_df.to_csv(new_csv_file)
+    print(f"          wrote {new_csv_file}")
     print(f"          all done")
