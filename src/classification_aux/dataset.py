@@ -68,6 +68,7 @@ class ExternalDataset(Dataset):
         assert mode in ['train', 'valid']
         self.mode = mode
         self.classes = classes
+        if images_dir is not None: print("images_dir:", images_dir)
 
         if self.mode == 'train':
             self.df = self.df.sample(frac=1).reset_index(drop=True)
@@ -104,6 +105,7 @@ class ExternalDataset(Dataset):
     def __getitem__(self, index):
         img_path = self.df.loc[index, 'image_path']
         if self.images_dir: img_path = f'{self.images_dir}/{img_path}'
+        assert os.path.exists(img_path), f'{img_path} not found'
         image = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
         image = np.stack([image, image, image], axis=-1)
         image = self.transform(image=image)['image']
