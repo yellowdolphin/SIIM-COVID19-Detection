@@ -4,7 +4,7 @@ in_features: 2048
 workers: 2
 
 chexpert_image_size: 512
-chexpert_batch_size: 8  # orig: 28
+chexpert_batch_size: 12  # orig: 28
 chexpert_init_lr: 0.00015
 chexpert_epochs: 10
 
