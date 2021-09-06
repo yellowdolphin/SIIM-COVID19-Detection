@@ -1,10 +1,10 @@
 encoder_name: 'timm-efficientnet-b5'
 encoder_weights: 'noisy-student'
 in_features: 2048
-workers: 16
+workers: 4
 
 chexpert_image_size: 512
-chexpert_batch_size: 28
+chexpert_batch_size: 16  # orig: 28
 chexpert_init_lr: 0.00015
 chexpert_epochs: 10
 
@@ -14,7 +14,7 @@ chest14_init_lr: 0.0001
 chest14_epochs: 15
 
 aux_image_size: 512
-aux_batch_size: 18
+aux_batch_size: 16       # orig 18
 aux_init_lr: 0.0001
 aux_epochs: 30
 decoder: 'deeplabv3plus'
