@@ -4,9 +4,9 @@ in_features: 2048
 workers: 4
 
 chexpert_image_size: 512
-chexpert_batch_size: 14  # orig: 28
-chexpert_init_lr: 0.00015
-chexpert_epochs: 2       # orig: 10
+chexpert_batch_size: 14      # orig: 28
+chexpert_init_lr:    0.8e-4  # orig: 1.5e-4
+chexpert_epochs:     1       # orig: 10
 
 chest14_image_size: 512
 chest14_batch_size: 28
