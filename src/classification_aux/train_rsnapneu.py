@@ -63,7 +63,7 @@ if __name__ == "__main__":
     train_loader = DataLoader(train_dataset, batch_size=cfg['aux_batch_size'], sampler=RandomSampler(train_dataset), num_workers=cfg['workers'], drop_last=True)
     valid_loader = DataLoader(valid_dataset, batch_size=cfg['aux_batch_size'], sampler=SequentialSampler(valid_dataset), num_workers=cfg['workers'])
 
-    print('TRAIN: {} | VALID: {}'.format(len(train_loader.dataset), len(valid_loader.dataset)))
+    print(f'TRAIN: {len(train_loader.dataset)} | VALID: {len(valid_loader.dataset)} batches of {batch_size}')
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
