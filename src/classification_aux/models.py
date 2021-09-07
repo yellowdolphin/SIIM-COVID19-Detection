@@ -49,7 +49,7 @@ class PretrainModel(nn.Module):
                 in_features=in_features, 
                 pretrained_path=None, 
                 pretrained_num_classes=None)
-            model.load_state_dict(torch.load(pretrained_path))
+            model.load_state_dict(torch.load(pretrained_path, map_location=torch.device('cpu')))
             self.encoder = model.encoder
             self.hidden_layer = model.hidden_layer
             del model
@@ -110,7 +110,7 @@ class SiimCovidAuxModel(nn.Module):
                             in_features=in_features, 
                             pretrained_path=None, 
                             pretrained_num_classes=None)
-                model.load_state_dict(torch.load(encoder_pretrained_path))
+                model.load_state_dict(torch.load(encoder_pretrained_path, map_location=torch.device('cpu')))
             self.encoder = model.encoder
             self.hidden_layer = model.hidden_layer
             del model
@@ -219,7 +219,7 @@ class SiimCovidAuxModel(nn.Module):
                 model_pretrained_num_classes=None,
                 test_mode=False,
             )
-            model.load_state_dict(torch.load(model_pretrained_path))
+            model.load_state_dict(torch.load(model_pretrained_path, map_location=torch.device('cpu')))
 
             self.encoder = model.encoder
             self.hidden_layer = model.hidden_layer
