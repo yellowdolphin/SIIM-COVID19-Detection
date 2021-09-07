@@ -64,7 +64,7 @@ if __name__ == '__main__':
 
     ### check image files from rsna_pneumonia dataset
     for split in ['train', 'valid']:
-        csv_file = '../../dataset/external_dataset/ext_csv/rsnapneumonia_{split}.csv'
+        csv_file = f'../../dataset/external_dataset/ext_csv/rsnapneumonia_{split}.csv'
         df = pd.read_csv(csv_file).drop_duplicates()
         df['image_path'] = df.image_path.str.replace('../../dataset/external_dataset/rsna-pneumonia-detection-challenge/images',
                                                      rsnapneumonia_source)
