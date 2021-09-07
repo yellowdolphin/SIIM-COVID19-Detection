@@ -60,8 +60,11 @@ if __name__ == "__main__":
         images_dir='.',
         image_size=cfg['aux_image_size'], mode='valid')
 
-    train_loader = DataLoader(train_dataset, batch_size=cfg['aux_batch_size'], sampler=RandomSampler(train_dataset), num_workers=cfg['workers'], drop_last=True)
-    valid_loader = DataLoader(valid_dataset, batch_size=cfg['aux_batch_size'], sampler=SequentialSampler(valid_dataset), num_workers=cfg['workers'])
+    batch_size = cfg['aux_batch_size']
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, sampler=RandomSampler(train_dataset), 
+                              num_workers=cpu_count(), drop_last=True)
+    valid_loader = DataLoader(valid_dataset, batch_size=batch_size, sampler=SequentialSampler(valid_dataset), 
+                              num_workers=cpu_count())
 
     print(f'TRAIN: {len(train_loader.dataset)} | VALID: {len(valid_loader.dataset)} batches of {batch_size}')
 
