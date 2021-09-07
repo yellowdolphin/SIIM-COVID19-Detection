@@ -1,9 +1,10 @@
 import numpy as np 
 import os 
 import cv2
-from multiprocessing import Pool
+from multiprocessing import Pool, cpu_count
 import albumentations as albu
 import pandas as pd
+
 transform = albu.LongestMaxSize(max_size=1024, interpolation=1, always_apply=False, p=1)
                 
 def resize_image(image_path):
@@ -24,6 +25,5 @@ if __name__ == '__main__':
             image_paths.append(image_path)
     
     print(len(image_paths))
-    p = Pool(16)
-    results = p.map(func=resize_image, iterable = image_paths)
-    p.close()
+    with Pool(cpu_count()) as p:
+        results = p.map(func=resize_image, iterable = image_paths)

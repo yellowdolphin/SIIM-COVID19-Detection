@@ -23,6 +23,7 @@ parser.add_argument("--cfg", default='configs/seresnet152d_512_unet.yaml', type=
 parser.add_argument("--steps", default=[0,1], nargs="+", type=int)
 parser.add_argument("--frac", default=1.0, type=float)
 parser.add_argument("--warmup-factor", default=10, type=int)
+
 args = parser.parse_args()
 print(args)
 
@@ -68,7 +69,7 @@ if __name__ == "__main__":
             batch_size *= torch.cuda.device_count()
         
         if args.frac != 1:
-            print('Quick training')
+            print(f'Quick training, frac={args.frac}')
             train_df = train_df.sample(frac=args.frac).reset_index(drop=True)
             valid_df = valid_df.sample(frac=args.frac).reset_index(drop=True)
 
@@ -80,7 +81,7 @@ if __name__ == "__main__":
         valid_loader = DataLoader(valid_dataset, batch_size=batch_size, sampler=SequentialSampler(valid_dataset), 
                                   num_workers=cpu_count())
 
-        print('TRAIN: {} | VALID: {}'.format(len(train_loader.dataset), len(valid_loader.dataset)))
+        print('TRAIN: {} | VALID: {} batches of {batch_size}'.format(len(train_loader.dataset), len(valid_loader.dataset)))
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
