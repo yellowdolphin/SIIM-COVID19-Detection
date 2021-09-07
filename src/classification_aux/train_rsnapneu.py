@@ -15,7 +15,7 @@ from segmentation_models_pytorch.utils.losses import DiceLoss
 from segmentation_models_pytorch.utils.metrics import IoU
 
 from models import SiimCovidAuxModel
-from dataset import RSNAPneuAuxDataset, rsnapneumonia_classes, chest14_classes
+from dataset import RSNAPneuAuxDataset, rsnapneumonia_classes, chexpert_classes, chest14_classes
 
 from utils import seed_everything
 
@@ -71,8 +71,11 @@ if __name__ == "__main__":
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    pretrained_path = 'chexpert_chest14_pretrain/{}_{}_pretrain_step1.pth'.format(cfg['encoder_name'], cfg['chest14_image_size'])
+    pretrained_path = f"chexpert_chest14_pretrain/{cfg['encoder_name']}_{cfg['chest14_image_size']}_pretrain_step1.pth"
     pretrained_num_classes = len(chest14_classes)
+    if not os.path.exists(pretrained_path):
+        pretrained_path = f"chexpert_chest14_pretrain/{cfg['encoder_name']}_{cfg['chexpert_image_size']}_pretrain_step0.pth"
+        pretrained_num_classes = len(chexpert_classes)
     
     model = SiimCovidAuxModel(
         encoder_name=cfg['encoder_name'],
