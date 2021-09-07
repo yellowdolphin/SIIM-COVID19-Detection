@@ -63,13 +63,14 @@ if __name__ == '__main__':
     print(f"    all done")
 
     ### check image files from rsna_pneumonia dataset
-    csv_file = '../../dataset/external_dataset/ext_csv/rsnapneumonia_train.csv'
-    df = pd.read_csv(csv_file).drop_duplicates()
-    df['image_path'] = df.image_path.str.replace('../../dataset/external_dataset/rsna-pneumonia-detection-challenge/images',
-                                                 rsnapneumonia_source)
-    print(f"RSNA Pneumonia: searching for images in {rsnapneumonia_source} ...")
-    file_exists = df.image_path.map(os.path.exists)
-    print(f"    found {sum(file_exists)} / {len(df)} images")
-    df.loc[file_exists].to_csv(csv_file)
-    print(f"    updated {csv_file}")
-    print(f"    all done")
+    for split in ['train', 'valid']:
+        csv_file = '../../dataset/external_dataset/ext_csv/rsnapneumonia_{split}.csv'
+        df = pd.read_csv(csv_file).drop_duplicates()
+        df['image_path'] = df.image_path.str.replace('../../dataset/external_dataset/rsna-pneumonia-detection-challenge/images',
+                                                     rsnapneumonia_source)
+        print(f"RSNA Pneumonia: searching for {split} images in {rsnapneumonia_source} ...")
+        file_exists = df.image_path.map(os.path.exists)
+        print(f"    found {sum(file_exists)} / {len(df)} images")
+        df.loc[file_exists].to_csv(csv_file)
+        print(f"    updated {csv_file}")
+        print(f"    all done")
