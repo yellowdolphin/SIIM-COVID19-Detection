@@ -95,7 +95,11 @@ if __name__ == "__main__":
     seg_criterion = DiceLoss()
 
     optimizer = torch.optim.Adam(model.parameters(), lr=cfg['aux_init_lr'])
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, cfg['aux_epochs']-1)
+    if cfg['aux_epochs'] > 1:
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, cfg['aux_epochs']-1)
+    else:
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, cfg['aux_epochs'])
+
 
     scaler = torch.cuda.amp.GradScaler()
 
@@ -115,7 +119,6 @@ if __name__ == "__main__":
     iou_func = IoU(eps=1e-7, threshold=0.5, activation=None, ignore_channels=None)
 
     for epoch in range(cfg['aux_epochs']):
-        scheduler.step()
         model.train()
         train_loss = []
         train_iou = []
@@ -162,6 +165,7 @@ if __name__ == "__main__":
             loop.set_postfix(loss=np.mean(train_loss), iou=np.mean(train_iou))
         train_loss = np.mean(train_loss)
         train_iou = np.mean(train_iou)
+        scheduler.step()
 
         model.eval()
 
