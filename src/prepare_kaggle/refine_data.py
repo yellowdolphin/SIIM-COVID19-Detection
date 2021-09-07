@@ -58,7 +58,7 @@ if __name__ == '__main__':
     df['image_path'] = df.image_path.str.replace('../../dataset/external_dataset/padchest/images', padchest_source)
     file_exists = df.image_path.map(os.path.exists)
     print(f"PadChest: found {sum(file_exists)} / {len(df)} images")
-    df.to_csv(csv_file)
+    df.loc[file_exists].to_csv(csv_file)
     print(f"    updated {csv_file}")
     print(f"    all done")
 
@@ -67,9 +67,9 @@ if __name__ == '__main__':
     df = pd.read_csv(csv_file).drop_duplicates()
     df['image_path'] = df.image_path.str.replace('../../dataset/external_dataset/rsna-pneumonia-detection-challenge/images',
                                                  rsnapneumonia_source)
-    print(f"RSNA Pneumonia: searching for images in {image_source} ...")
+    print(f"RSNA Pneumonia: searching for images in {rsnapneumonia_source} ...")
     file_exists = df.image_path.map(os.path.exists)
     print(f"    found {sum(file_exists)} / {len(df)} images")
-    df.to_csv(csv_file)
+    df.loc[file_exists].to_csv(csv_file)
     print(f"    updated {csv_file}")
     print(f"    all done")
