@@ -6,6 +6,7 @@ from tqdm import tqdm
 
 image_source = '/kaggle/input/chexpert-v10-small/CheXpert-v1.0-small'
 padchest_source = '/kaggle/input/padchest/images-224'
+rsnapneumonia_source = '/kaggle/input/covidx-cxr2'
 
 if __name__ == '__main__':
     ### remove unused file in chexpert dataset
@@ -58,5 +59,17 @@ if __name__ == '__main__':
     file_exists = df.image_path.map(os.path.exists)
     print(f"PadChest: found {sum(file_exists)} / {len(df)} images")
     df.to_csv(csv_file)
-    print(f"          updated {csv_file}")
-    print(f"          all done")
+    print(f"    updated {csv_file}")
+    print(f"    all done")
+
+    ### check image files from rsna_pneumonia dataset
+    csv_file = '../../dataset/external_dataset/ext_csv/rsnapneumonia_train.csv'
+    df = pd.read_csv(csv_file).drop_duplicates()
+    df['image_path'] = df.image_path.str.replace('../../dataset/external_dataset/rsna-pneumonia-detection-challenge/images',
+                                                 rsnapneumonia_source)
+    print(f"RSNA Pneumonia: searching for images in {image_source} ...")
+    file_exists = df.image_path.map(os.path.exists)
+    print(f"    found {sum(file_exists)} / {len(df)} images")
+    df.to_csv(csv_file)
+    print(f"    updated {csv_file}")
+    print(f"    all done")

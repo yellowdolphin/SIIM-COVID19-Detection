@@ -47,7 +47,7 @@ if __name__ == "__main__":
     valid_df = pd.read_csv('../../dataset/external_dataset/ext_csv/rsnapneumonia_valid.csv')
     
     if args.frac != 1:
-        print('Quick training')
+        print(f'Quick training, frac={args.frac}')
         train_df = train_df.sample(frac=args.frac).reset_index(drop=True)
         valid_df = valid_df.sample(frac=args.frac).reset_index(drop=True)
 

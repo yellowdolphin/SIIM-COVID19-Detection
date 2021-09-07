@@ -64,7 +64,7 @@ class ExternalDataset(Dataset):
     def __init__(self, df, images_dir, image_size, mode, classes):
         super(ExternalDataset,self).__init__()
         self.df = df.reset_index(drop=True)
-        self.images_dir = images_dir or ''
+        self.images_dir = images_dir or '.'
         self.image_size = image_size
         assert mode in ['train', 'valid']
         self.mode = mode
@@ -116,7 +116,7 @@ class RSNAPneuAuxDataset(Dataset):
     def __init__(self, df, images_dir, image_size, mode):
         super(RSNAPneuAuxDataset, self).__init__()
         self.df = df.reset_index(drop=True)
-        self.images_dir = images_dir
+        self.images_dir = images_dir or '.'
         self.image_size = image_size
         assert mode in ['train', 'valid']
         self.mode = mode
@@ -154,7 +154,8 @@ class RSNAPneuAuxDataset(Dataset):
         return len(self.df)
 
     def __getitem__(self, index):
-        img_path = '{}/{}'.format(self.images_dir, self.df.loc[index, 'image_path'])
+        img_path = os.path.join(self.images_dir, self.df.loc[index, 'image_path'])
+        assert os.path.exists(img_path), f'{img_path} not found'
         image = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
         image = np.stack([image, image, image], axis=-1)
 
