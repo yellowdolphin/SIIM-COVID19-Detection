@@ -55,7 +55,7 @@ if __name__ == "__main__":
     train_dataset = RSNAPneuAuxDataset(
         df=train_df,
         images_dir='.',
-        image_size=cfg['aux_image_size'], mode='train', use_reshape=True, use_broadcast=True)
+        image_size=cfg['aux_image_size'], mode='train')
     valid_dataset = RSNAPneuAuxDataset(
         df=valid_df,
         images_dir='.',

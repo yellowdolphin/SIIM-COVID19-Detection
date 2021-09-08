@@ -113,15 +113,13 @@ class ExternalDataset(Dataset):
         return image, label
 
 class RSNAPneuAuxDataset(Dataset):
-    def __init__(self, df, images_dir, image_size, mode, use_reshape=False, use_broadcast=False):
+    def __init__(self, df, images_dir, image_size, mode):
         super(RSNAPneuAuxDataset, self).__init__()
         self.df = df.reset_index(drop=True)
         self.images_dir = images_dir or '.'
         self.image_size = image_size
         assert mode in ['train', 'valid']
         self.mode = mode
-        self.use_reshape = use_reshape
-        self.use_broadcast = use_broadcast
 
         if self.mode == 'train':
             self.df = self.df.sample(frac=1).reset_index(drop=True)
@@ -167,46 +165,17 @@ class RSNAPneuAuxDataset(Dataset):
         mask = np.zeros((height, width), dtype=np.uint8)
         if self.df.loc[index, 'hasbox']:
             arr = self.df.loc[index, 'label'].split(' ')
-            
-            if self.use_reshape:
-                assert len(arr) >= 6
-                arr = np.array(arr).reshape(-1, 6)
-                class_ids, xyxys = arr[:, 0], arr[:, 2:].copy()
-                assert (class_ids == 'opacity').all()
-                xyxys = xyxys.astype(float).astype(int)
-                xyxys[:, [0, 2]] = xyxys[:, [0, 2]].clip(min=0, max=width)
-                xyxys[:, [1, 3]] = xyxys[:, [1, 3]].clip(min=0, max=height)
+            assert len(arr) >= 6
+            arr = np.array(arr).reshape(-1, 6)
+            class_ids, xyxys = arr[:, 0], arr[:, 2:].copy()
+            assert (class_ids == 'opacity').all()
+            xyxys = xyxys.astype(float).astype(int)
+            xyxys[:, [0, 2]] = xyxys[:, [0, 2]].clip(min=0, max=width)
+            xyxys[:, [1, 3]] = xyxys[:, [1, 3]].clip(min=0, max=height)
 
-                for x1, y1, x2, y2 in xyxys:
-                    if x1 >= x2 or y1 >= y2: continue
-
-                    if self.use_broadcast:
-                        mask[y1:y2,x1:x2] = 1
-                    else:
-                        mask[y1:y2,x1:x2] = np.ones((y2-y1, x2-x1), dtype=np.uint8)
-            else:
-                nums = len(arr) // 6
-                assert nums > 0
-
-                for i in range(nums):
-                    class_name = arr[6*i]
-                    assert class_name == 'opacity'
-                    x1 = int(float(arr[6*i+2]))
-                    y1 = int(float(arr[6*i+3]))
-                    x2 = int(float(arr[6*i+4]))
-                    y2 = int(float(arr[6*i+5]))
-                    
-                    x1 = min(max(0,x1),width)
-                    x2 = min(max(0,x2),width)
-                    y1 = min(max(0,y1),height)
-                    y2 = min(max(0,y2),height)
-
-                    if x1 >= x2 or y1 >= y2: continue
-
-                    if self.use_broadcast:
-                        mask[y1:y2,x1:x2] = 1
-                    else:
-                        mask[y1:y2,x1:x2] = np.ones((y2-y1, x2-x1), dtype=np.uint8)
+            for x1, y1, x2, y2 in xyxys:
+                if x1 >= x2 or y1 >= y2: continue
+                mask[y1:y2,x1:x2] = 1
 
         transformed = self.transform(image=image, mask=mask)
         image = transformed["image"]
