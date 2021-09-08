@@ -56,7 +56,7 @@ if __name__ == "__main__":
         train_df = refine_dataframe(train_df)
         
         if args.frac != 1:
-            print('Quick training')
+            print(f'Quick training, frac={args.frac}')
             train_df = train_df.sample(frac=args.frac).reset_index(drop=True)
             valid_df = valid_df.sample(frac=args.frac).reset_index(drop=True)
 
@@ -106,7 +106,10 @@ if __name__ == "__main__":
         seg_criterion = DiceLoss()
 
         optimizer = torch.optim.Adam(model.parameters(), lr=cfg['aux_init_lr'])
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, cfg['aux_epochs']-1)
+        if cfg['aux_epochs'] > 1:
+            scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, cfg['aux_epochs']-1)
+        else:
+            scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, cfg['aux_epochs'])
 
         scaler = torch.cuda.amp.GradScaler()
 
