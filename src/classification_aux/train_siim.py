@@ -34,7 +34,7 @@ print(args)
 
 #image_source = '/kaggle/input/siim-covid19-resized-to-1024px-jpg/train'
 #image_suffix = 'jpg'
-image_source = 'kaggle/input/siim-covid19-resized-to-512px-png/train'
+image_source = '/kaggle/input/siim-covid19-resized-to-512px-png/train'
 image_suffix = 'png'
 
 SEED = 123
