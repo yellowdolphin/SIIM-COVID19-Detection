@@ -1,4 +1,5 @@
 import argparse
+from multiprocessing import cpu_count
 import numpy as np
 import os
 import pandas as pd
@@ -67,8 +68,10 @@ if __name__ == "__main__":
             images_dir=image_src,
             image_size=cfg['aux_image_size'], mode='valid')
 
-        train_loader = DataLoader(train_dataset, batch_size=cfg['aux_batch_size'], sampler=RandomSampler(train_dataset), num_workers=cfg['workers'], drop_last=True)
-        valid_loader = DataLoader(valid_dataset, batch_size=cfg['aux_batch_size'], sampler=SequentialSampler(valid_dataset), num_workers=cfg['workers'], drop_last=False)
+        train_loader = DataLoader(train_dataset, batch_size=cfg['aux_batch_size'], sampler=RandomSampler(train_dataset), 
+            num_workers=cpu_count(), drop_last=True)
+        valid_loader = DataLoader(valid_dataset, batch_size=cfg['aux_batch_size'], sampler=SequentialSampler(valid_dataset), 
+            num_workers=cpu_count(), drop_last=False)
 
         print('TRAIN: {} | VALID: {}'.format(len(train_loader.dataset), len(valid_loader.dataset)))
 
