@@ -61,7 +61,7 @@ if __name__ == "__main__":
                 valid_dataset = RSNAPneuAuxDataset(df=valid_df, images_dir='.', image_size=cfg['aux_image_size'], mode='valid',
                                                    use_reshape=use_reshape, use_broadcast=use_broadcast)
                 tic = perf_counter()
-                for i in range(1000):
+                for i in range(len(valid_dataset)):
                     res = valid_dataset[i]
                 print(f"use_broadcast: {use_broadcast:5}, use_reshape: {use_reshape:5}, Wall: {perf_counter() - tic:.6f}")
         print()
