@@ -230,6 +230,7 @@ class SiimCovidAuxDataset(Dataset):
 
     def __getitem__(self, index):
         img_path = os.path.join(self.images_dir, self.df.loc[index, 'imageid'] + '.png')
+        assert os.path.exists(img_path), f'{img_path} not found'
         image = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
         image = np.stack([image, image, image], axis=-1)
 
