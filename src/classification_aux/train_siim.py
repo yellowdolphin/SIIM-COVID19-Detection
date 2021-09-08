@@ -10,7 +10,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SequentialSampler, RandomSampler
-from timm.utils.model_ema import ModelEmaV2
+from timm.utils.model_ema import ModelEmaV2  # exp moving averaging of model weights
 from segmentation_models_pytorch.utils.losses import DiceLoss
 from segmentation_models_pytorch.utils.metrics import IoU
 
@@ -32,8 +32,10 @@ parser.add_argument("--weighted", default=True, type=lambda x: (str(x).lower() =
 args = parser.parse_args()
 print(args)
 
-image_source = '/kaggle/input/siim-covid19-resized-to-1024px-jpg/train'
-image_suffix = 'jpg'
+#image_source = '/kaggle/input/siim-covid19-resized-to-1024px-jpg/train'
+#image_suffix = 'jpg'
+image_source = 'kaggle/input/siim-covid19-resized-to-512px-png/train'
+image_suffix = 'png'
 
 SEED = 123
 seed_everything(SEED)
@@ -71,12 +73,13 @@ if __name__ == "__main__":
             images_suffix=image_suffix,
             image_size=cfg['aux_image_size'], mode='valid')
 
-        train_loader = DataLoader(train_dataset, batch_size=cfg['aux_batch_size'], sampler=RandomSampler(train_dataset), 
+        batch_size = cfg['aux_batch_size']
+        train_loader = DataLoader(train_dataset, batch_size=batch_size, sampler=RandomSampler(train_dataset), 
             num_workers=cpu_count(), drop_last=True)
-        valid_loader = DataLoader(valid_dataset, batch_size=cfg['aux_batch_size'], sampler=SequentialSampler(valid_dataset), 
+        valid_loader = DataLoader(valid_dataset, batch_size=batch_size, sampler=SequentialSampler(valid_dataset), 
             num_workers=cpu_count(), drop_last=False)
 
-        print('TRAIN: {} | VALID: {}'.format(len(train_loader.dataset), len(valid_loader.dataset)))
+        print(f'TRAIN: {len(train_loader.dataset)} | VALID: {len(valid_loader.dataset)} batches of {batch_size}')
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
