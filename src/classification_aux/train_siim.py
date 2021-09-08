@@ -32,7 +32,8 @@ parser.add_argument("--weighted", default=True, type=lambda x: (str(x).lower() =
 args = parser.parse_args()
 print(args)
 
-image_src = '/kaggle/input/siim-covid19-resized-to-1024px-jpg/train'
+image_source = '/kaggle/input/siim-covid19-resized-to-1024px-jpg/train'
+image_suffix = 'jpg'
 
 SEED = 123
 seed_everything(SEED)
@@ -60,12 +61,14 @@ if __name__ == "__main__":
         train_dataset = SiimCovidAuxDataset(
             df=train_df,
             #images_dir='../../dataset/siim-covid19-detection/images/train',
-            images_dir=image_src,
+            images_dir=image_source,
+            images_suffix=image_suffix,
             image_size=cfg['aux_image_size'], mode='train')
         valid_dataset = SiimCovidAuxDataset(
             df=valid_df,
             #images_dir='../../dataset/siim-covid19-detection/images/train',
-            images_dir=image_src,
+            images_dir=image_source,
+            images_suffix=image_suffix,
             image_size=cfg['aux_image_size'], mode='valid')
 
         train_loader = DataLoader(train_dataset, batch_size=cfg['aux_batch_size'], sampler=RandomSampler(train_dataset), 
