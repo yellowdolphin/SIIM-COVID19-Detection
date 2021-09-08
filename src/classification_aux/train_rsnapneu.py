@@ -52,6 +52,22 @@ if __name__ == "__main__":
         train_df = train_df.sample(frac=args.frac).reset_index(drop=True)
         valid_df = valid_df.sample(frac=args.frac).reset_index(drop=True)
 
+    if True:
+        print("Benchmarking datasets.RSNAPneuAuxDataset.__getitem__() variants")
+        from time import perf_counter
+
+        for use_reshape in (False, True):
+            for use_broadcast in (False, True):
+                valid_dataset = RSNAPneuAuxDataset(df=valid_df, images_dir='.', image_size=cfg['aux_image_size'], mode='valid',
+                                                   use_reshape=use_reshape, use_broadcast=use_broadcast)
+                tic = perf_counter()
+                for i in range(100):
+                    res = valid_dataset[i]
+                print(f"use_broadcast: {use_broadcast:5}, use_reshape: {use_reshape:5}, Wall: {perf_counter() - tic:.6f}")
+        print()
+
+
+
     train_dataset = RSNAPneuAuxDataset(
         df=train_df,
         images_dir='.',
