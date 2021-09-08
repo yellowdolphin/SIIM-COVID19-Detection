@@ -171,7 +171,7 @@ class RSNAPneuAuxDataset(Dataset):
             if self.use_reshape:
                 assert len(arr) >= 6
                 arr = np.array(arr).reshape(-1, 6)
-                class_ids, xyxys = a[:, 0], a[:, 2:].copy()
+                class_ids, xyxys = arr[:, 0], arr[:, 2:].copy()
                 assert (class_ids == 'opacity').all()
                 xyxys = xyxys.astype(float).astype(int)
                 xyxys[:, [0, 2]] = xyxys[:, [0, 2]].clip(min=0, max=width)
