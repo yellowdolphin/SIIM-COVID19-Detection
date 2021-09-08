@@ -13,8 +13,8 @@ chest14_batch_size: 28
 chest14_init_lr: 0.0001
 chest14_epochs: 15
 
-aux_image_size: 512
-aux_batch_size: 8       # orig 18
+aux_image_size: 480
+aux_batch_size: 16      # orig 18
 aux_init_lr: 0.5e-4     # orig 1e-4
 aux_epochs: 1           # orig: 30
 decoder: 'deeplabv3plus'
