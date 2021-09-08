@@ -31,6 +31,8 @@ parser.add_argument("--weighted", default=True, type=lambda x: (str(x).lower() =
 args = parser.parse_args()
 print(args)
 
+image_src = '/kaggle/input/siim-covid19-resized-to-1024px-jpg/train'
+
 SEED = 123
 seed_everything(SEED)
 
@@ -56,11 +58,13 @@ if __name__ == "__main__":
 
         train_dataset = SiimCovidAuxDataset(
             df=train_df,
-            images_dir='../../dataset/siim-covid19-detection/images/train',
+            #images_dir='../../dataset/siim-covid19-detection/images/train',
+            images_dir=image_src,
             image_size=cfg['aux_image_size'], mode='train')
         valid_dataset = SiimCovidAuxDataset(
             df=valid_df,
-            images_dir='../../dataset/siim-covid19-detection/images/train',
+            #images_dir='../../dataset/siim-covid19-detection/images/train',
+            images_dir=image_src,
             image_size=cfg['aux_image_size'], mode='valid')
 
         train_loader = DataLoader(train_dataset, batch_size=cfg['aux_batch_size'], sampler=RandomSampler(train_dataset), num_workers=cfg['workers'], drop_last=True)
@@ -103,10 +107,9 @@ if __name__ == "__main__":
         ema_val_map_max = 0
         if os.path.isfile(LOG):
             os.remove(LOG)
-        log_file = open(LOG, 'a')
-        log_file.write('epoch, lr, train_loss, train_iou, ema_val_iou, val_map, ema_val_map\n')
-        log_file.close()
-
+        with open(LOG, 'a') as log_file:
+            log_file.write('epoch, lr, train_loss, train_iou, ema_val_iou, val_map, ema_val_map\n')
+    
         count = 0
         best_epoch = 0
 
@@ -202,10 +205,9 @@ if __name__ == "__main__":
             emal_val_iou /= len(valid_loader.dataset)
             
             print('train loss: {:.5f} | train iou: {:.5f} | ema_val_iou: {:.5f} | val_map: {:.5f} | ema_val_map: {:.5f}'.format(train_loss, train_iou, emal_val_iou, val_map, ema_val_map))
-            log_file = open(LOG, 'a')
-            log_file.write('{}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}\n'.format(
-                epoch, optimizer.param_groups[0]['lr'], train_loss, train_iou, emal_val_iou, val_map, ema_val_map))
-            log_file.close()
+            with open(LOG, 'a') as log_file:
+                log_file.write('{}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}\n'.format(
+                    epoch, optimizer.param_groups[0]['lr'], train_loss, train_iou, emal_val_iou, val_map, ema_val_map))
 
             if ema_val_map > ema_val_map_max:
                 print('Ema valid map improved from {:.5f} to {:.5f} saving model to {}'.format(ema_val_map_max, ema_val_map, CHECKPOINT))
@@ -219,7 +221,6 @@ if __name__ == "__main__":
             if count > args.patience:
                 break
         
-        log_file = open(LOG, 'a')
-        log_file.write('Best epoch {} | mAP max: {}\n'.format(best_epoch, ema_val_map_max))
-        log_file.close()
+        with open(LOG, 'a') as log_file:
+            log_file.write('Best epoch {} | mAP max: {}\n'.format(best_epoch, ema_val_map_max))
         print('Best epoch {} | mAP max: {}'.format(best_epoch, ema_val_map_max))
