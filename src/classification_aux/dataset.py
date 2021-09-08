@@ -120,6 +120,8 @@ class RSNAPneuAuxDataset(Dataset):
         self.image_size = image_size
         assert mode in ['train', 'valid']
         self.mode = mode
+        self.use_reshape = use_reshape
+        self.use_broadcast = use_broadcast
 
         if self.mode == 'train':
             self.df = self.df.sample(frac=1).reset_index(drop=True)
@@ -166,7 +168,7 @@ class RSNAPneuAuxDataset(Dataset):
         if self.df.loc[index, 'hasbox']:
             arr = self.df.loc[index, 'label'].split(' ')
             
-            if use_reshape:
+            if self.use_reshape:
                 assert len(arr) >= 6
                 arr = np.array(arr).reshape(-1, 6)
                 class_ids, xyxys = a[:, 0], a[:, 2:].copy()
