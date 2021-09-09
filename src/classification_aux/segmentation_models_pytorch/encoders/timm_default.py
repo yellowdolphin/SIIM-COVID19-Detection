@@ -3,6 +3,8 @@ from functools import partial
 import torch
 import torch.nn as nn
 
+import timm
+
 #from timm.models.efficientnet import EfficientNet
 #from timm.models.efficientnet import decode_arch_def, round_channels, default_cfgs
 #from timm.models.layers.activations import Swish
