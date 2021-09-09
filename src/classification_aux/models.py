@@ -32,14 +32,21 @@ class PretrainModel(nn.Module):
                 depth=5,
                 weights=encoder_weights,
             )
-            if 'efficientnet' in encoder_name:
-                self.hidden_layer = nn.Sequential(*list(self.encoder.children())[-4:])  # would be entire "blocks"
+            if 'timm-efficientnet' in encoder_name:
+                self.hidden_layer = nn.Sequential(*list(self.encoder.children())[-4:])
                 del self.encoder.global_pool
                 del self.encoder.act2
                 del self.encoder.bn2
                 del self.encoder.conv_head
-            elif 'seresnet' in encoder_name or 'resnet' in encoder_name:
+            elif 'timm-seresnet' in encoder_name or 'resnet' in encoder_name:
                 self.hidden_layer = nn.AdaptiveAvgPool2d(output_size=1)
+            elif 'efficientnet' in encoder_name:
+                self.hidden_layer = nn.Sequential(*list(self.encoder.children())[-5:-1])
+                del self.encoder.global_pool
+                del self.encoder.act2
+                del self.encoder.bn2
+                del self.encoder.conv_head
+                del self.encoder.classifier
         else:
             print('Load pretrain: {}'.format(pretrained_path))
             model = PretrainModel(
