@@ -11,12 +11,17 @@ from .inceptionv4 import inceptionv4_encoders
 from .efficientnet import efficient_net_encoders
 from .mobilenet import mobilenet_encoders
 from .xception import xception_encoders
-from .timm_efficientnet import timm_efficientnet_encoders
-from .timm_resnest import timm_resnest_encoders
-from .timm_resnet import timm_resnet_encoders
-from .timm_res2net import timm_res2net_encoders
-from .timm_regnet import timm_regnet_encoders
-from .timm_sknet import timm_sknet_encoders
+
+import timm
+if timm.__version__ == '0.4.5':
+    from .timm_efficientnet import timm_efficientnet_encoders
+    from .timm_resnest import timm_resnest_encoders
+    from .timm_resnet import timm_resnet_encoders
+    from .timm_res2net import timm_res2net_encoders
+    from .timm_regnet import timm_regnet_encoders
+    from .timm_sknet import timm_sknet_encoders
+else:
+    from .timm_default import timm_default_encoders
 from ._preprocessing import preprocess_input
 
 encoders = {}
@@ -30,12 +35,15 @@ encoders.update(inceptionv4_encoders)
 encoders.update(efficient_net_encoders)
 encoders.update(mobilenet_encoders)
 encoders.update(xception_encoders)
-encoders.update(timm_efficientnet_encoders)
-encoders.update(timm_resnest_encoders)
-encoders.update(timm_resnet_encoders)
-encoders.update(timm_res2net_encoders)
-encoders.update(timm_regnet_encoders)
-encoders.update(timm_sknet_encoders)
+if timm.__version__ == '0.4.5':
+    encoders.update(timm_efficientnet_encoders)
+    encoders.update(timm_resnest_encoders)
+    encoders.update(timm_resnet_encoders)
+    encoders.update(timm_res2net_encoders)
+    encoders.update(timm_regnet_encoders)
+    encoders.update(timm_sknet_encoders)
+else:
+    encoders.update(timm_default_encoders)
 
 
 def get_encoder(name, in_channels=3, depth=5, weights=None):
@@ -46,10 +54,16 @@ def get_encoder(name, in_channels=3, depth=5, weights=None):
         raise KeyError("Wrong encoder name `{}`, supported encoders: {}".format(name, list(encoders.keys())))
 
     params = encoders[name]["params"]
-    params.update(depth=depth)
+    if 'features_only' in params:        # use timm API
+        params.update(out_indices=list(range(depth)),    # check!
+                      in_chans=in_channels,
+                      pretrained=(weights is not None))
+        weights = None  # weights (e.g. "noisy-student") inferred from encoder_name
+    else:
+        params.update(depth=depth)
     encoder = Encoder(**params)
 
-    if weights is not None:
+    if weights is not None:              # not required for timm API
         try:
             settings = encoders[name]["pretrained_settings"][weights]
         except KeyError:
@@ -58,7 +72,8 @@ def get_encoder(name, in_channels=3, depth=5, weights=None):
             ))
         encoder.load_state_dict(model_zoo.load_url(settings["url"]))
 
-    encoder.set_in_channels(in_channels)
+    if hasattr(encoder, 'set_in_channels'): 
+        encoder.set_in_channels(in_channels)
 
     return encoder
 

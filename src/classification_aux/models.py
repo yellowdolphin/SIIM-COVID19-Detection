@@ -94,6 +94,7 @@ class SiimCovidAuxModel(nn.Module):
 
         if model_pretrained_path is None:
             if encoder_pretrained_path is None:
+                print('pretrained weights from url')
                 model = PretrainModel(
                             encoder_name=encoder_name,
                             encoder_weights=encoder_weights,

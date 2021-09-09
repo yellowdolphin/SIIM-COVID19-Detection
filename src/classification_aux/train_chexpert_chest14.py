@@ -48,7 +48,7 @@ if __name__ == "__main__":
             dst_classes = chexpert_classes
             init_lr = cfg['chexpert_init_lr']
             epochs = cfg['chexpert_epochs']
-            encoder_weights = cfg['encoder_weights']
+            encoder_weights = cfg['encoder_weights'] if 'encoder_weights' in cfg else None
             pretrained_path = None
             pretrained_num_classes = None
         elif step == 1:
