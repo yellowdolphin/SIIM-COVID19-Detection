@@ -23,4 +23,6 @@ def prepare_settings(settings):
 
 timm_default_encoders = {name: {'encoder': partial(timm.create_model, model_name=name),
                                 'pretrained_settings': {},
-                                'params': {'features_only': True}} for name in timm.list_models()}
+                                'params': {'features_only': False}} for name in timm.list_models()}
+
+# ToDo: can encoder with features_only=True replace the entire PretrainModel class?

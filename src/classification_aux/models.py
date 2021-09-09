@@ -33,8 +33,7 @@ class PretrainModel(nn.Module):
                 weights=encoder_weights,
             )
             if 'efficientnet' in encoder_name:
-                print(self.encoder)
-                self.hidden_layer = nn.Sequential(*list(self.encoder.children())[-4:])
+                self.hidden_layer = nn.Sequential(*list(self.encoder.children())[-4:])  # would be entire "blocks"
                 del self.encoder.global_pool
                 del self.encoder.act2
                 del self.encoder.bn2
