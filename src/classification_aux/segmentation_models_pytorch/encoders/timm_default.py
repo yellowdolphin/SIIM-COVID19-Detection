@@ -7,7 +7,7 @@ import timm
 
 #from timm.models.efficientnet import EfficientNet
 #from timm.models.efficientnet import decode_arch_def, round_channels, default_cfgs
-#from timm.models.layers.activations import Swish
+from timm.models.layers.activations import Swish
 
 #from ._base import EncoderMixin
 
@@ -23,7 +23,8 @@ def prepare_settings(settings):
 
 timm_default_encoders = {name: {'encoder': partial(timm.create_model, model_name=name),
                                 'pretrained_settings': {},
-                                'params': {'features_only': True}} for name in timm.list_models()}
+                                'params': {'features_only': True}, 
+                                'act_layer': Swish} for name in timm.list_models()}
 
 # The EfficientNetBaseEncoder from timm_efficientnet.py has a "hidden_layer" = head w/o output (FC) layer,
 # but its forward() method is not calling it (only extracts stage features).

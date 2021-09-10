@@ -46,11 +46,6 @@ class PretrainModel(nn.Module):
                 full_encoder = timm.create_model(encoder_name)
                 self.hidden_layer = nn.Sequential(*list(full_encoder.children())[-5:-1])
                 del full_encoder
-                #del self.encoder.global_pool
-                #del self.encoder.act2
-                #del self.encoder.bn2
-                #del self.encoder.conv_head
-                #del self.encoder.classifier
         else:
             print('Load pretrain: {}'.format(pretrained_path))
             model = PretrainModel(
