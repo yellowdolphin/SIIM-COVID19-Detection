@@ -43,7 +43,9 @@ class PretrainModel(nn.Module):
                 self.hidden_layer = nn.AdaptiveAvgPool2d(output_size=1)
             elif 'efficientnet' in encoder_name:
                 import timm
-                full_encoder = timm.create_model(encoder_name)
+                from timm.models.layers.activations import Swish
+
+                full_encoder = timm.create_model(encoder_name, act_layer=Swish)
                 self.hidden_layer = nn.Sequential(*list(full_encoder.children())[-5:-1])
                 del full_encoder
         else:
