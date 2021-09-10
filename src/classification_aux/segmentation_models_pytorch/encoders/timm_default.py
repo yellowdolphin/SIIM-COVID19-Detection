@@ -23,8 +23,9 @@ def prepare_settings(settings):
 
 timm_default_encoders = {name: {'encoder': partial(timm.create_model, model_name=name),
                                 'pretrained_settings': {},
-                                'params': {'features_only': True}, 
-                                'act_layer': Swish} for name in timm.list_models()}
+                                'params': {'features_only': True, 
+                                           'act_layer': Swish},
+                                } for name in timm.list_models()}
 
 # The EfficientNetBaseEncoder from timm_efficientnet.py has a "hidden_layer" = head w/o output (FC) layer,
 # but its forward() method is not calling it (only extracts stage features).
