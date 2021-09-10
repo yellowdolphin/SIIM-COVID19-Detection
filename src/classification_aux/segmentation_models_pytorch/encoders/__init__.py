@@ -56,7 +56,8 @@ def get_encoder(name, in_channels=3, depth=5, weights=None):
     params = encoders[name]["params"]
     if 'features_only' in params:        # use timm API
         if params['features_only']:
-            params.update(out_indices=list(range(depth)))    # check!
+            if depth != 5: print(f"WARNING: depth = {depth}, check out_indices are correct!")
+            params.update(out_indices=list(range(depth)))    # default is (0, 1, 2, 3, 4) and depth is 5
         params.update(in_chans=in_channels,
                       pretrained=(weights is not None))
         weights = None  # weights (e.g. "noisy-student") inferred from encoder_name
