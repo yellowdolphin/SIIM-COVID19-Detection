@@ -80,7 +80,7 @@ def get_encoder(name, in_channels=3, depth=5, weights=None):
         # Add this method to timm models
         from functools import partial
         from torch import nn
-
+        from . import _utils as utils
         def get_stages(m):
             _stage_idxs = (2, 3, 5)
             return [
