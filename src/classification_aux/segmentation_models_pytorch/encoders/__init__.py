@@ -101,6 +101,7 @@ def get_encoder(name, in_channels=3, depth=5, weights=None):
                 )
 
         encoder.make_dilated = partial(make_dilated, self=encoder)
+        encoder.out_channels = [encoder.conv_stem.in_channels] + [s['num_chs'] for s in encoder.feature_info]
 
     return encoder
 
