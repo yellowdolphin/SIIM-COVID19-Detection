@@ -76,6 +76,29 @@ def get_encoder(name, in_channels=3, depth=5, weights=None):
     if hasattr(encoder, 'set_in_channels'): 
         encoder.set_in_channels(in_channels)
 
+    if not hasattr(encoder, 'make_dilated') and 'efficientnet' in name:
+        # Add this method to timm models
+        def get_stages(m):
+            _stage_idxs = (2, 3, 5)
+            return [
+                nn.Identity(),
+                nn.Sequential(m.conv_stem, m.bn1, m.act1),
+                m.blocks[:_stage_idxs[0]],
+                m.blocks[_stage_idxs[0]:_stage_idxs[1]],
+                m.blocks[_stage_idxs[1]:_stage_idxs[2]],
+                m.blocks[_stage_idxs[2]:],
+            ]
+
+        def make_dilated(self, stage_list, dilation_list):
+            stages = get_stages(self)
+            for stage_indx, dilation_rate in zip(stage_list, dilation_list):
+                utils.replace_strides_with_dilation(
+                    module=stages[stage_indx],
+                    dilation_rate=dilation_rate,
+                )
+
+        encoder.make_dilated = partial(make_dilated, self=encoder)
+
     return encoder
 
 

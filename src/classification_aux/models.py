@@ -32,6 +32,7 @@ class PretrainModel(nn.Module):
                 depth=5,
                 weights=encoder_weights,
             )
+            # self.hidden_layer: all between last stage and output (FC) layer, usually just the pooling
             if 'timm-efficientnet' in encoder_name:
                 self.hidden_layer = nn.Sequential(*list(self.encoder.children())[-4:])
                 del self.encoder.global_pool
