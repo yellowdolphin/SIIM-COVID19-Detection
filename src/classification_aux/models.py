@@ -42,6 +42,7 @@ class PretrainModel(nn.Module):
             elif 'timm-seresnet' in encoder_name or 'resnet' in encoder_name:
                 self.hidden_layer = nn.AdaptiveAvgPool2d(output_size=1)
             elif 'efficientnet' in encoder_name:
+                import timm
                 full_encoder = timm.create_model(encoder_name)
                 self.hidden_layer = nn.Sequential(*list(full_encoder.children())[-5:-1])
                 del full_encoder
