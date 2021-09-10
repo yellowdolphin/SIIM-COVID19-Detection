@@ -78,6 +78,8 @@ def get_encoder(name, in_channels=3, depth=5, weights=None):
 
     if not hasattr(encoder, 'make_dilated') and 'efficientnet' in name:
         # Add this method to timm models
+        from functools import partial
+        
         def get_stages(m):
             _stage_idxs = (2, 3, 5)
             return [
