@@ -102,8 +102,9 @@ if __name__ == "__main__":
             encoder_pretrained_num_classes=None,
             model_pretrained_path='rsnapneu_pretrain/{}_{}_{}_rsnapneu.pth'.format(cfg['encoder_name'], cfg['aux_image_size'], cfg['decoder']), 
             model_pretrained_num_classes=len(rsnapneumonia_classes))
-        print('encoder activation layer:', encoder_act_layer)
-        print(model)
+
+        if hasattr(model.encoder, 'act1'):
+            print("Encoder activation layer:", model.encoder.act1)
 
         model_ema = ModelEmaV2(model, decay=cfg['model_ema_decay'], device=device)
         model.to(device)

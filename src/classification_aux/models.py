@@ -27,7 +27,6 @@ class PretrainModel(nn.Module):
         super(PretrainModel, self).__init__()
         self.in_features = in_features
         if pretrained_path is None:
-            print(f"calling get_encoder() with act_layer={encoder_act_layer}")
             self.encoder = get_encoder(
                 encoder_name,
                 in_channels=3,
@@ -53,7 +52,6 @@ class PretrainModel(nn.Module):
                 del full_encoder
         else:
             print('Load pretrain: {}'.format(pretrained_path))
-            print('enc_act:', encoder_act_layer)
             model = PretrainModel(
                 encoder_name=encoder_name,
                 encoder_weights=encoder_weights,
