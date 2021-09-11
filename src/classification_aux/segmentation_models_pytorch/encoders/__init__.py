@@ -62,6 +62,7 @@ def get_encoder(name, in_channels=3, depth=5, weights=None, act_layer=None):
                       pretrained=(weights is not None))
         weights = None  # weights (e.g. "noisy-student") inferred from encoder_name
         if act_layer is not None:
+            print(f"looking for class named {act_layer}")
             import timm 
             try:
                 params.update(act_layer=getattr(timm.models.layers.activations, act_layer.capitalize()))
