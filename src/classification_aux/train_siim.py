@@ -28,8 +28,9 @@ parser.add_argument("--folds", default=[0,1,2,3,4], nargs="+", type=int)
 parser.add_argument("--frac", default=1.0, type=float)
 parser.add_argument("--patience", default=8, type=int)
 parser.add_argument("--weighted", default=True, type=lambda x: (str(x).lower() == "true"))
-parser.add_argument("--epochs", default=None, type=int)
+parser.add_argument("--epochs", type=int)
 parser.add_argument("--bs", type=int)
+parser.add_argument("--lr", type=float)
 
 args = parser.parse_args()
 print(args)
@@ -107,7 +108,8 @@ if __name__ == "__main__":
 
         seg_criterion = DiceLoss()
 
-        optimizer = torch.optim.Adam(model.parameters(), lr=cfg['aux_init_lr'])
+        lr = args.lr or cfg['aux_init_lr']
+        optimizer = torch.optim.Adam(model.parameters(), lr=lr)
         epochs = args.epochs or cfg['aux_epochs']
         if epochs > 1:
             scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, epochs - 1)
