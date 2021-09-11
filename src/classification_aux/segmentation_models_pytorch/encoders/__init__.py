@@ -64,10 +64,10 @@ def get_encoder(name, in_channels=3, depth=5, weights=None, act_layer=None):
         if act_layer is not None:
             import timm 
             try:
-                params.update(act_layer=getattr(timm.models.layers.activations, act_layer))
+                params.update(act_layer=getattr(timm.models.layers.activations, act_layer.capitalize()))
             except AttributeError:
                 import torch
-                params.update(act_layer=getattr(torch.nn, act_layer))
+                params.update(act_layer=getattr(torch.nn, act_layer.capitalize()))
             except AttributeError:
                 print('act_layer: unknown class "{act_layer}", using default instead')
     else:
