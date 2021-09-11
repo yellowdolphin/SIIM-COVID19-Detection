@@ -22,6 +22,7 @@ class PretrainModel(nn.Module):
         in_features: int = 2560, 
         pretrained_path=None, 
         pretrained_num_classes=None,
+        act_layer=None,
     ):
         super(PretrainModel, self).__init__()
         self.in_features = in_features
@@ -31,6 +32,7 @@ class PretrainModel(nn.Module):
                 in_channels=3,
                 depth=5,
                 weights=encoder_weights,
+                act_layer=act_layer,
             )
             # self.hidden_layer: all between last stage and output (FC) layer, usually just the pooling
             if 'timm-efficientnet' in encoder_name:
@@ -84,6 +86,7 @@ class SiimCovidAuxModel(nn.Module):
         self,
         encoder_name: str = "timm-efficientnet-b7",
         encoder_weights: Optional[str] = None,
+        encoder_act_layer = None,
         decoder_use_batchnorm: bool = True,
         decoder_channels: List[int] = (256, 128, 64, 32, 16),
         decoder_attention_type: Optional[str] = None,
@@ -108,7 +111,8 @@ class SiimCovidAuxModel(nn.Module):
                             classes=classes,
                             in_features=in_features, 
                             pretrained_path=None, 
-                            pretrained_num_classes=None)
+                            pretrained_num_classes=None,
+                            act_layer=encoder_act_layer)
             else:
                 print('load pretrain', encoder_pretrained_path)
                 model = PretrainModel(
@@ -117,7 +121,8 @@ class SiimCovidAuxModel(nn.Module):
                             classes=encoder_pretrained_num_classes,
                             in_features=in_features, 
                             pretrained_path=None, 
-                            pretrained_num_classes=None)
+                            pretrained_num_classes=None,
+                            act_layer=encoder_act_layer)
                 model.load_state_dict(torch.load(encoder_pretrained_path, map_location=torch.device('cpu')))
             self.encoder = model.encoder
             self.hidden_layer = model.hidden_layer

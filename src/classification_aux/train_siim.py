@@ -88,9 +88,12 @@ if __name__ == "__main__":
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+        print(cfg['what_happens_if_key_is_missing?'])
+        encoder_act_layer = args.encoder_act or cfg['encoder_act_layer'] if 'encoder_act_layer' in cfg else None
         model = SiimCovidAuxModel(
             encoder_name=cfg['encoder_name'],
             encoder_weights=None,
+            encoder_act_layer=encoder_act_layer,
             decoder=cfg['decoder'],
             classes=len(classes),
             in_features=cfg['in_features'],
