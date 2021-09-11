@@ -1,7 +1,6 @@
 encoder_name: 'tf_efficientnetv2_s_in21ft1k'
 encoder_weights: 'infer'
 in_features: 1280
-workers: 4
 
 chexpert_image_size: 256
 chexpert_batch_size: 28      # orig: 28

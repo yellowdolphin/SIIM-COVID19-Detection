@@ -120,7 +120,7 @@ if __name__ == "__main__":
         if os.path.isfile(LOG):
             os.remove(LOG)
         with open(LOG, 'a') as log_file:
-            log_file.write('epoch, lr, train_loss, train_iou, ema_val_iou, val_map, ema_val_map\n')
+            log_file.write('epoch, lr, train_loss, train_cls_loss, train_iou, valid_cls_loss, ema_val_iou, val_map, ema_val_map\n')
     
         count = 0
         best_epoch = 0
@@ -131,6 +131,7 @@ if __name__ == "__main__":
             model.train()
             train_loss = []
             train_iou = []
+            train_cls_loss = []
 
             loop = tqdm(train_loader)
             for images, masks, labels in loop:
@@ -168,6 +169,7 @@ if __name__ == "__main__":
                         loss = cfg['aux_weight']*cls_loss + (1-cfg['aux_weight'])*seg_loss
 
                         train_iou.append(iou_func(seg_outputs, masks).item())
+                        train_cls_loss.append(cls_loss.item())
                         train_loss.append(loss.item())
 
                 scaler.scale(loss).backward()
@@ -180,11 +182,13 @@ if __name__ == "__main__":
                 loop.set_postfix(loss=np.mean(train_loss), iou=np.mean(train_iou))
             train_loss = np.mean(train_loss)
             train_iou = np.mean(train_iou)
+            train_cls_loss = np.mean(train_cls_loss)
             scheduler.step()
 
             model.eval()
             model_ema.eval()
 
+            valid_cls_loss = []
             cls_preds = []
             cls_ema_preds = []
             imageids = []
@@ -198,6 +202,10 @@ if __name__ == "__main__":
 
                 with torch.cuda.amp.autocast(), torch.no_grad():
                     _, cls_outputs = model(images)
+                    cls_loss = cls_criterion(cls_outputs, labels)
+                    if args.weighted:
+                        cls_loss = torch.mean(torch.sum(cls_loss, 1),0)
+                    valid_cls_loss.append(cls_loss.item())
                     cls_preds.append(torch.sigmoid(cls_outputs).data.cpu().numpy())
 
                     ema_seg_outputs, ema_cls_outputs = model_ema.module(images)
@@ -205,6 +213,7 @@ if __name__ == "__main__":
 
                     emal_val_iou += iou_func(ema_seg_outputs, masks).item()*images.size(0)
 
+            valid_cls_loss = np.mean(valid_cls_loss)
             cls_preds = np.vstack(cls_preds)
             cls_ema_preds = np.vstack(cls_ema_preds)
             imageids = np.array(imageids)
@@ -218,8 +227,8 @@ if __name__ == "__main__":
             
             print('train loss: {:.5f} | train iou: {:.5f} | ema_val_iou: {:.5f} | val_map: {:.5f} | ema_val_map: {:.5f}'.format(train_loss, train_iou, emal_val_iou, val_map, ema_val_map))
             with open(LOG, 'a') as log_file:
-                log_file.write('{}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}\n'.format(
-                    epoch, optimizer.param_groups[0]['lr'], train_loss, train_iou, emal_val_iou, val_map, ema_val_map))
+                log_file.write('{}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}\n'.format(
+                    epoch, optimizer.param_groups[0]['lr'], train_loss, train_cls_loss, train_iou, valid_cls_loss, emal_val_iou, val_map, ema_val_map))
 
             if ema_val_map > ema_val_map_max:
                 print('Ema valid map improved from {:.5f} to {:.5f} saving model to {}'.format(ema_val_map_max, ema_val_map, CHECKPOINT))
