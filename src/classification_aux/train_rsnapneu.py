@@ -27,11 +27,13 @@ parser.add_argument("--cfg", default='configs/seresnet152d_512_unet.yaml', type=
 parser.add_argument("--frac", default=1.0, type=float)
 parser.add_argument("--epochs", default=15, type=int)
 parser.add_argument("--patience", default=8, type=int)
+parser.add_argument("--seed", type=int)
+parser.add_argument("--encoder_act", default=None, type=str)
 
 args = parser.parse_args()
 print(args)
 
-SEED = 123
+SEED = args.seed or 123
 seed_everything(SEED)
 
 if __name__ == "__main__":
@@ -77,9 +79,11 @@ if __name__ == "__main__":
         pretrained_path = f"chexpert_chest14_pretrain/{cfg['encoder_name']}_{cfg['chexpert_image_size']}_pretrain_step0.pth"
         pretrained_num_classes = len(chexpert_classes)
     
+    encoder_act_layer = args.encoder_act or cfg['encoder_act_layer'] if 'encoder_act_layer' in cfg else None
     model = SiimCovidAuxModel(
         encoder_name=cfg['encoder_name'],
         encoder_weights=None,
+        encoder_act_layer=encoder_act_layer,
         decoder=cfg['decoder'],
         classes=len(rsnapneumonia_classes),
         in_features=cfg['in_features'],

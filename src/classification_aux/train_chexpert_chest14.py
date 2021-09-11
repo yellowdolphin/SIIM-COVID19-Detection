@@ -23,6 +23,7 @@ parser.add_argument("--cfg", default='configs/seresnet152d_512_unet.yaml', type=
 parser.add_argument("--steps", default=[0,1], nargs="+", type=int)
 parser.add_argument("--frac", default=1.0, type=float)
 parser.add_argument("--warmup-factor", default=10, type=int)
+parser.add_argument("--encoder_act", default=None, type=str)
 
 args = parser.parse_args()
 print(args)
@@ -85,9 +86,11 @@ if __name__ == "__main__":
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+        encoder_act_layer = args.encoder_act or cfg['encoder_act_layer'] if 'encoder_act_layer' in cfg else None
         model = PretrainModel(
             encoder_name=cfg['encoder_name'],
             encoder_weights=encoder_weights,
+            encoder_act_layer=encoder_act_layer,
             classes=len(dst_classes),
             in_features=cfg['in_features'],
             pretrained_path=pretrained_path,

@@ -33,6 +33,7 @@ parser.add_argument("--bs", type=int)
 parser.add_argument("--lr", type=float)
 parser.add_argument("--seed", type=int)
 parser.add_argument("--aux_weight", type=float)
+parser.add_argument("--encoder_act", default=None, type=str)
 
 args = parser.parse_args()
 print(args)
@@ -88,7 +89,7 @@ if __name__ == "__main__":
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        print(cfg['what_happens_if_key_is_missing?'])
+        print("get missing cfg key:", cfg['what_happens_if_key_is_missing?'])
         encoder_act_layer = args.encoder_act or cfg['encoder_act_layer'] if 'encoder_act_layer' in cfg else None
         model = SiimCovidAuxModel(
             encoder_name=cfg['encoder_name'],

@@ -14,15 +14,9 @@ ToDo: can encoder with features_only=True replace the entire PretrainModel class
 
 from functools import partial
 
-import torch
-import torch.nn as nn
-
 import timm
-
-from timm.models.layers.activations import Swish
 
 timm_default_encoders = {name: {'encoder': partial(timm.create_model, model_name=name),
                                 'pretrained_settings': {},
                                 'params': {'features_only': True},
                                 } for name in timm.list_models()}
-
