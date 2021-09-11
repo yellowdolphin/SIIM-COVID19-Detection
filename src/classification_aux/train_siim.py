@@ -31,6 +31,7 @@ parser.add_argument("--weighted", default=True, type=lambda x: (str(x).lower() =
 parser.add_argument("--epochs", type=int)
 parser.add_argument("--bs", type=int)
 parser.add_argument("--lr", type=float)
+parser.add_argument("--seed", type=int)
 
 args = parser.parse_args()
 print(args)
@@ -40,7 +41,7 @@ print(args)
 image_source = '/kaggle/input/siim-covid19-resized-to-512px-png/train'
 image_suffix = 'png'
 
-SEED = 123
+SEED = args.seed or 123
 seed_everything(SEED)
 
 if __name__ == "__main__":
@@ -132,7 +133,7 @@ if __name__ == "__main__":
 
         iou_func = IoU(eps=1e-7, threshold=0.5, activation=None, ignore_channels=None)
 
-        print(f"Training for {epochs} epochs with bs={batch_size}, initial lr={lr}")
+        print(f"Training for {epochs} epochs with bs={batch_size}, initial lr={lr}, seed={seed}")
         for epoch in range(epochs):
             model.train()
             train_loss = []
