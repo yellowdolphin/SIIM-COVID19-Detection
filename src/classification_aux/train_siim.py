@@ -32,6 +32,7 @@ parser.add_argument("--epochs", type=int)
 parser.add_argument("--bs", type=int)
 parser.add_argument("--lr", type=float)
 parser.add_argument("--seed", type=int)
+parser.add_argument("--aux_weight", type=float)
 
 args = parser.parse_args()
 print(args)
@@ -108,6 +109,7 @@ if __name__ == "__main__":
             cls_criterion = nn.BCEWithLogitsLoss()
 
         seg_criterion = DiceLoss()
+        aux_weight = cfg['aux_weight'] if args.aux_weight is None else args.aux_weight
 
         lr = args.lr or cfg['aux_init_lr']
         optimizer = torch.optim.Adam(model.parameters(), lr=lr)
@@ -133,7 +135,7 @@ if __name__ == "__main__":
 
         iou_func = IoU(eps=1e-7, threshold=0.5, activation=None, ignore_channels=None)
 
-        print(f"Training for {epochs} epochs with bs={batch_size}, initial lr={lr}, seed={SEED}")
+        print(f"Training for {epochs} epochs with bs={batch_size}, initial lr={lr}, aux_weight={aux_weight}, seed={SEED}")
         for epoch in range(epochs):
             model.train()
             train_loss = []
@@ -162,9 +164,10 @@ if __name__ == "__main__":
                         if args.weighted:
                             cls_loss = torch.mean(torch.sum(cls_loss, 1),0)
                         seg_loss = lam * seg_criterion(seg_outputs, masks_a) + (1 - lam) * seg_criterion(seg_outputs, masks_b)
-                        loss = cfg['aux_weight']*cls_loss + (1-cfg['aux_weight'])*seg_loss
+                        loss = aux_weight * cls_loss + (1 - aux_weight) * seg_loss
 
                         train_iou.append(iou_func(seg_outputs, masks).item())
+                        train_cls_loss.append(cls_loss.item())
                         train_loss.append(loss.item())
                 else:
                     with torch.cuda.amp.autocast():
@@ -173,7 +176,7 @@ if __name__ == "__main__":
                         if args.weighted:
                             cls_loss = torch.mean(torch.sum(cls_loss, 1),0)
                         seg_loss = seg_criterion(seg_outputs, masks)
-                        loss = cfg['aux_weight']*cls_loss + (1-cfg['aux_weight'])*seg_loss
+                        loss = aux_weight * cls_loss + (1 - aux_weight) * seg_loss
 
                         train_iou.append(iou_func(seg_outputs, masks).item())
                         train_cls_loss.append(cls_loss.item())
