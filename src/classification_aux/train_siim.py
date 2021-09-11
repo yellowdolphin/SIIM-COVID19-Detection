@@ -246,7 +246,7 @@ if __name__ == "__main__":
             with open(LOG, 'a') as log_file:
                 log_file.write('{}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}\n'.format(
                     epoch + 1, optimizer.param_groups[0]['lr'], train_loss, train_cls_loss, train_iou, valid_cls_loss, 
-                    emal_val_iou, al_map, ema_val_map))
+                    emal_val_iou, val_map, ema_val_map))
 
             if ema_val_map > ema_val_map_max:
                 print('Ema valid map improved from {:.5f} to {:.5f} saving model to {}'.format(ema_val_map_max, ema_val_map, CHECKPOINT))
