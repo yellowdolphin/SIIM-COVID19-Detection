@@ -53,6 +53,7 @@ class PretrainModel(nn.Module):
                 del full_encoder
         else:
             print('Load pretrain: {}'.format(pretrained_path))
+            print('enc_act:', encoder_act_layer)
             model = PretrainModel(
                 encoder_name=encoder_name,
                 encoder_weights=encoder_weights,
@@ -224,6 +225,7 @@ class SiimCovidAuxModel(nn.Module):
             model = SiimCovidAuxModel(
                 encoder_name=encoder_name,
                 encoder_weights=None,
+                encoder_act_layer=encoder_act_layer,
                 decoder=decoder,
                 classes=model_pretrained_num_classes,
                 in_features=in_features,
