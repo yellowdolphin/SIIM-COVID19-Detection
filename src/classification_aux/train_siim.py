@@ -28,6 +28,8 @@ parser.add_argument("--folds", default=[0,1,2,3,4], nargs="+", type=int)
 parser.add_argument("--frac", default=1.0, type=float)
 parser.add_argument("--patience", default=8, type=int)
 parser.add_argument("--weighted", default=True, type=lambda x: (str(x).lower() == "true"))
+parser.add_argument("--epochs", default=None, type=int)
+parser.add_argument("--bs", type=int)
 
 args = parser.parse_args()
 print(args)
@@ -73,7 +75,7 @@ if __name__ == "__main__":
             images_suffix=image_suffix,
             image_size=cfg['aux_image_size'], mode='valid')
 
-        batch_size = cfg['aux_batch_size']
+        batch_size = args.bs or cfg['aux_batch_size']
         train_loader = DataLoader(train_dataset, batch_size=batch_size, sampler=RandomSampler(train_dataset), 
             num_workers=cpu_count(), drop_last=True)
         valid_loader = DataLoader(valid_dataset, batch_size=batch_size, sampler=SequentialSampler(valid_dataset), 
@@ -127,7 +129,9 @@ if __name__ == "__main__":
 
         iou_func = IoU(eps=1e-7, threshold=0.5, activation=None, ignore_channels=None)
 
-        for epoch in range(cfg['aux_epochs']):
+        epochs = args.epochs or cfg['aux_epochs']
+        print(f"Training for {epochs} epochs with bs={bs}")
+        for epoch in range(epochs):
             model.train()
             train_loss = []
             train_iou = []
