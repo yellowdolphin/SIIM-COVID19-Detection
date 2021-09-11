@@ -130,7 +130,7 @@ if __name__ == "__main__":
         iou_func = IoU(eps=1e-7, threshold=0.5, activation=None, ignore_channels=None)
 
         epochs = args.epochs or cfg['aux_epochs']
-        print(f"Training for {epochs} epochs with bs={bs}")
+        print(f"Training for {epochs} epochs with bs={batch_size}")
         for epoch in range(epochs):
             model.train()
             train_loss = []
