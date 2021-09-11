@@ -242,7 +242,7 @@ if __name__ == "__main__":
             if ema_val_map > ema_val_map_max:
                 print('Ema valid map improved from {:.5f} to {:.5f} saving model to {}'.format(ema_val_map_max, ema_val_map, CHECKPOINT))
                 ema_val_map_max = ema_val_map
-                best_epoch = epoch
+                best_epoch = epoch + 1
                 count = 0
                 torch.save(model_ema.module.state_dict(), CHECKPOINT)
             else:
