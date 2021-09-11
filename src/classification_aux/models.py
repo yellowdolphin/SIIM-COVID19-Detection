@@ -55,6 +55,7 @@ class PretrainModel(nn.Module):
             model = PretrainModel(
                 encoder_name=encoder_name,
                 encoder_weights=encoder_weights,
+                encoder_act_layer=encoder_act_layer,
                 classes=pretrained_num_classes,
                 in_features=in_features, 
                 pretrained_path=None, 
