@@ -85,9 +85,9 @@ if __name__ == "__main__":
         valid_loader = DataLoader(valid_dataset, batch_size=batch_size, sampler=SequentialSampler(valid_dataset), 
             num_workers=cpu_count(), drop_last=False)
 
-        print(dir(valid_loader))
-        print(f'TRAIN: {len(train_loader)} batches of {batch_size} = {len(train_loader) * batch_size} / {len(train_loader.dataset)} images')
-        print(f'VALID: {len(valid_loader)} batches of {batch_size} = {len(valid_loader) * batch_size} / {len(valid_loader.dataset)} images')
+        print("drop last valid batch:", valid_loader.drop_last)
+        print(f'TRAIN: {len(train_loader):5} batches of {batch_size} = {len(train_loader) * batch_size:8} / {len(train_loader.dataset):8} images')
+        print(f'VALID: {len(valid_loader):5} batches of {batch_size} (or less) => {len(valid_loader.dataset):8} images')
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
