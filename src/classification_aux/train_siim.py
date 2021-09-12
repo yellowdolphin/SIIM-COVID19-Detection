@@ -62,7 +62,7 @@ if __name__ == "__main__":
         train_df = refine_dataframe(train_df)
         
         if args.frac != 1:
-            print(f'Quick training, frac={args.frac}')
+            print(f'Quick training, using only fraction of {args.frac} of the data')
             train_df = train_df.sample(frac=args.frac).reset_index(drop=True)
             valid_df = valid_df.sample(frac=args.frac).reset_index(drop=True)
 
