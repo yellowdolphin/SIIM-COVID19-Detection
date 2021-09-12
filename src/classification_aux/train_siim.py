@@ -85,7 +85,8 @@ if __name__ == "__main__":
         valid_loader = DataLoader(valid_dataset, batch_size=batch_size, sampler=SequentialSampler(valid_dataset), 
             num_workers=cpu_count(), drop_last=False)
 
-        print(f'TRAIN: {len(train_loader.dataset)} | VALID: {len(valid_loader.dataset)} batches of {batch_size}')
+        print(f'TRAIN: {len(train_loader)} batches of {batch_size} = {len(train_loader) * batch_size} / {len(train_loader.dataset)} images')
+        print(f'VALID: {len(valid_loader)} batches of {batch_size} = {len(valid_loader) * batch_size} / {len(valid_loader.dataset)} images')
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -120,10 +121,7 @@ if __name__ == "__main__":
         lr = args.lr or cfg['aux_init_lr']
         optimizer = torch.optim.Adam(model.parameters(), lr=lr)
         epochs = args.epochs or cfg['aux_epochs']
-        if epochs > 1:
-            scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, epochs - 1)
-        else:
-            scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, epochs)
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, epochs)
 
         scaler = torch.cuda.amp.GradScaler()
 
@@ -199,7 +197,6 @@ if __name__ == "__main__":
             train_loss = np.mean(train_loss)
             train_iou = np.mean(train_iou)
             train_cls_loss = np.mean(train_cls_loss)
-            scheduler.step()
 
             model.eval()
             model_ema.eval()
@@ -244,7 +241,7 @@ if __name__ == "__main__":
             print('train loss: {:.5f} | train iou: {:.5f} | ema_val_iou: {:.5f} | val_map: {:.5f} | ema_val_map: {:.5f}'.format(
                 train_loss, train_iou, emal_val_iou, val_map, ema_val_map))
             with open(LOG, 'a') as log_file:
-                log_file.write('{}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}\n'.format(
+                log_file.write('{}, {:.3e}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}\n'.format(
                     epoch + 1, optimizer.param_groups[0]['lr'], train_loss, train_cls_loss, train_iou, valid_cls_loss, 
                     emal_val_iou, val_map, ema_val_map))
 
@@ -259,6 +256,8 @@ if __name__ == "__main__":
             
             if count > args.patience:
                 break
+
+            scheduler.step()
         
         with open(LOG, 'a') as log_file:
             log_file.write('Best epoch {} | mAP max: {}\n'.format(best_epoch, ema_val_map_max))
