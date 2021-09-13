@@ -125,7 +125,7 @@ if __name__ == "__main__":
         lr = args.lr or cfg['aux_init_lr']
         optimizer = torch.optim.Adam(model.parameters(), lr=lr)
         epochs = args.epochs or cfg['aux_epochs']
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, epochs)
+        #scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, epochs)
 
         scaler = torch.cuda.amp.GradScaler()
 
@@ -261,7 +261,8 @@ if __name__ == "__main__":
             if count > args.patience:
                 break
 
-            scheduler.step()
+            if ('scheduler' in globals()) and scheduler is not None: 
+                scheduler.step()
         
         with open(LOG, 'a') as log_file:
             log_file.write('Best epoch {} | mAP max: {}\n'.format(best_epoch, ema_val_map_max))
