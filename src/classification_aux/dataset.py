@@ -162,6 +162,11 @@ class RSNAPneuAuxDataset(Dataset):
         label = torch.FloatTensor(self.df.loc[index, rsnapneumonia_classes])
 
         height, width = image.shape[0:2]
+        if 'height' in self.df.columns:
+            # scale bboxes for resized images
+            o_height, o_width = self.df.loc[index, ['height', 'width']]
+        else:
+            o_height, o_width = height, width
         mask = np.zeros((height, width), dtype=np.uint8)
         if self.df.loc[index, 'hasbox']:
             arr = self.df.loc[index, 'label'].split(' ')
@@ -169,7 +174,10 @@ class RSNAPneuAuxDataset(Dataset):
             arr = np.array(arr).reshape(-1, 6)
             class_ids, xyxys = arr[:, 0], arr[:, 2:].copy()
             assert (class_ids == 'opacity').all()
-            xyxys = xyxys.astype(float).astype(int)
+            xyxys = xyxys.astype(float)
+            xyxys[:, [0, 2]] *= (width / o_width)
+            xyxys[:, [1, 3]] *= (height / o_height)
+            xyxys = xyxys.astype(int)
             xyxys[:, [0, 2]] = xyxys[:, [0, 2]].clip(min=0, max=width)
             xyxys[:, [1, 3]] = xyxys[:, [1, 3]].clip(min=0, max=height)
 
@@ -238,6 +246,11 @@ class SiimCovidAuxDataset(Dataset):
         label = torch.FloatTensor(self.df.loc[index, classes])
 
         height, width = image.shape[0:2]
+        if 'height' in self.df.columns:
+            # scale bboxes for resized images
+            o_height, o_width = self.df.loc[index, ['height', 'width']]
+        else:
+            o_height, o_width = height, width
         mask = np.zeros((height, width), dtype=np.uint8)
         if self.df.loc[index, 'hasbox']:
             arr = self.df.loc[index, 'label'].split(' ')
@@ -245,7 +258,10 @@ class SiimCovidAuxDataset(Dataset):
             arr = np.array(arr).reshape(-1, 6)
             class_ids, xyxys = arr[:, 0], arr[:, 2:].copy()
             assert (class_ids == 'opacity').all()
-            xyxys = xyxys.astype(float).astype(int)
+            xyxys = xyxys.astype(float)
+            xyxys[:, [0, 2]] *= (width / o_width)
+            xyxys[:, [1, 3]] *= (height / o_height)
+            xyxys = xyxys.astype(int)
             xyxys[:, [0, 2]] = xyxys[:, [0, 2]].clip(min=0, max=width)
             xyxys[:, [1, 3]] = xyxys[:, [1, 3]].clip(min=0, max=height)
 

@@ -54,6 +54,12 @@ if __name__ == "__main__":
     os.makedirs('checkpoints', exist_ok = True)
     df = pd.read_csv('../../dataset/siim-covid19-detection/train_kfold.csv')
     
+    # Add original image dims from xhlulu's meta.csv
+    meta_csv = os.path.join(image_source, '../meta.csv')
+    dims = pd.read_csv(meta_csv).rename(columns={'image_id': 'imageid', 'dim0': 'height', 'dim1': 'width'})
+    dims.drop(columns='split', inplace=True)
+    df = df.merge(dims, on='imageid')
+    
     for fold in args.folds:
         valid_df = df.loc[df['fold'] == fold]
         valid_df = refine_dataframe(valid_df)
