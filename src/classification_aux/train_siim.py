@@ -93,8 +93,8 @@ if __name__ == "__main__":
         encoder_act_layer = args.encoder_act or (cfg['encoder_act_layer'] if 'encoder_act_layer' in cfg else None)
         model = SiimCovidAuxModel(
             encoder_name=cfg['encoder_name'],
-            #encoder_weights=None,
-            encoder_weights=cfg['encoder_weights'],  # from scratch
+            encoder_weights=None,
+            #encoder_weights=cfg['encoder_weights'],  # from scratch
             encoder_act_layer=encoder_act_layer,
             decoder=cfg['decoder'],
             classes=len(classes),
@@ -102,11 +102,11 @@ if __name__ == "__main__":
             decoder_channels=cfg['decoder_channels'],
             encoder_pretrained_path=None,
             encoder_pretrained_num_classes=None,
-            #model_pretrained_path='rsnapneu_pretrain/{}_{}_{}_rsnapneu.pth'.format(
-            #    cfg['encoder_name'], cfg['aux_image_size'], cfg['decoder']),
-            #model_pretrained_num_classes=len(rsnapneumonia_classes))
-            model_pretrained_path=None,              # from scratch
-            model_pretrained_num_classes=None)       # from scratch
+            model_pretrained_path='rsnapneu_pretrain/{}_{}_{}_rsnapneu.pth'.format(
+                cfg['encoder_name'], cfg['aux_image_size'], cfg['decoder']),
+            model_pretrained_num_classes=len(rsnapneumonia_classes))
+            #model_pretrained_path=None,              # from scratch
+            #model_pretrained_num_classes=None)       # from scratch
 
         if hasattr(model.encoder, 'act1'):
             print("Encoder activation layer:", model.encoder.act1)
