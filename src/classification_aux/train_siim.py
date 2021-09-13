@@ -34,6 +34,7 @@ parser.add_argument("--lr", type=float)
 parser.add_argument("--seed", type=int)
 parser.add_argument("--aux_weight", type=float)
 parser.add_argument("--encoder_act", default=None, type=str)
+parser.add_argument("--from_scratch", default=False, type=lambda x: (str(x).lower() == "true"))
 
 args = parser.parse_args()
 print(args)
@@ -97,10 +98,12 @@ if __name__ == "__main__":
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         encoder_act_layer = args.encoder_act or (cfg['encoder_act_layer'] if 'encoder_act_layer' in cfg else None)
+        encoder_weights = cfg['encoder_weights'] if args.from_scratch else None
+        model_pretrained_path = None if args.from_scratch else 'rsnapneu_pretrain/{}_{}_{}_rsnapneu.pth'.format(
+            cfg['encoder_name'], cfg['aux_image_size'], cfg['decoder'])
         model = SiimCovidAuxModel(
             encoder_name=cfg['encoder_name'],
-            #encoder_weights=None,
-            encoder_weights=cfg['encoder_weights'],  # from scratch
+            encoder_weights=encoder_weights,
             encoder_act_layer=encoder_act_layer,
             decoder=cfg['decoder'],
             classes=len(classes),
@@ -108,11 +111,8 @@ if __name__ == "__main__":
             decoder_channels=cfg['decoder_channels'],
             encoder_pretrained_path=None,
             encoder_pretrained_num_classes=None,
-            #model_pretrained_path='rsnapneu_pretrain/{}_{}_{}_rsnapneu.pth'.format(
-            #    cfg['encoder_name'], cfg['aux_image_size'], cfg['decoder']),
-            #model_pretrained_num_classes=len(rsnapneumonia_classes))
-            model_pretrained_path=None,              # from scratch
-            model_pretrained_num_classes=None)       # from scratch
+            model_pretrained_path=model_pretrained_path,
+            model_pretrained_num_classes=len(rsnapneumonia_classes))
 
         if hasattr(model.encoder, 'act1'):
             print("Encoder activation layer:", model.encoder.act1)
