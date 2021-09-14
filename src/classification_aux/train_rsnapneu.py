@@ -1,7 +1,8 @@
 import argparse
 from multiprocessing import cpu_count
-import numpy as np
 import os
+from glob import glob
+import numpy as np
 import pandas as pd
 from tqdm import tqdm
 import yaml
@@ -191,7 +192,7 @@ if __name__ == "__main__":
             scaler.step(optimizer)
             scaler.update()
 
-            loop.set_description('Epoch {:02d}/{:02d} | LR: {:.5f}'.format(epoch, cfg['aux_epochs']-1, optimizer.param_groups[0]['lr']))
+            loop.set_description('Epoch {}/{} | LR: {:.5f}'.format(epoch + 1, cfg['aux_epochs'], optimizer.param_groups[0]['lr']))
             loop.set_postfix(loss=np.mean(train_loss), iou=np.mean(train_iou))
         train_loss = np.mean(train_loss)
         train_iou = np.mean(train_iou)
