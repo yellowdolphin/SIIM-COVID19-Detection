@@ -268,6 +268,7 @@ class SiimCovidAuxModel(nn.Module):
                 encoder_state_dict = {k.replace('encoder.', ''): v for k, v in encoder_state_dict.items() if k.startswith('encoder.')}
                 self.encoder.load_state_dict(encoder_state_dict)
                 del encoder_state_dict
+                print(f"read encoder body weights from {encoder_pretrained_path}")
 
     @autocast()
     def forward(self, x):
