@@ -15,7 +15,7 @@ from segmentation_models_pytorch.utils.losses import DiceLoss
 from segmentation_models_pytorch.utils.metrics import IoU
 
 from models import SiimCovidAuxModel
-from dataset import SiimCovidAuxDataset, classes, rsnapneumonia_classes
+from dataset import SiimCovidAuxDataset, classes, rsnapneumonia_classes, chexpert_classes, chest14_classes
 
 from utils import seed_everything, refine_dataframe, get_study_map
 
