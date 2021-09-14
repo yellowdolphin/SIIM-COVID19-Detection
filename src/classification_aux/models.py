@@ -248,8 +248,8 @@ class SiimCovidAuxModel(nn.Module):
                 self.fc = nn.Linear(in_features, 1024, bias=True)
                 self.cls_head = nn.Linear(1024, classes, bias=True)
                 encoder_state_dict = torch.load(encoder_pretrained_path, map_location=torch.device('cpu'))
-                fc_state_dict = {k.lstrip('fc.'): v for k, v in encoder_state_dict.items() if k.startswith('fc.')}
-                cls_head_dict = {k.lstrip('cls_head.'): v for k, v in encoder_state_dict.items() if k.startswith('cls_head.')}
+                fc_state_dict = {k.replace('fc.', ''): v for k, v in encoder_state_dict.items() if k.startswith('fc.')}
+                cls_head_dict = {k.replace('cls_head.', ''): v for k, v in encoder_state_dict.items() if k.startswith('cls_head.')}
                 self.fc.load_state_dict(fc_state_dict)
                 self.cls_head.load_state_dict(cls_head_dict)
                 del encoder_state_dict, fc_state_dict, cls_head_dict
@@ -265,7 +265,7 @@ class SiimCovidAuxModel(nn.Module):
             # Update body weights (iterative training) if both model_pretrained and encoder_pretrained are specified
             if encoder_pretrained_path is not None:
                 encoder_state_dict = torch.load(encoder_pretrained_path, map_location=torch.device('cpu'))
-                encoder_state_dict = {k.lstrip('encoder.'): v for k, v in encoder_state_dict.items() if k.startswith('encoder.')}
+                encoder_state_dict = {k.replace('encoder.', ''): v for k, v in encoder_state_dict.items() if k.startswith('encoder.')}
                 self.encoder.load_state_dict(encoder_state_dict)
                 del encoder_state_dict
 
