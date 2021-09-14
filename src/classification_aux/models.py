@@ -115,7 +115,6 @@ class SiimCovidAuxModel(nn.Module):
                             pretrained_path=None, 
                             pretrained_num_classes=None)
             else:
-                print('load pretrain', encoder_pretrained_path)
                 model = PretrainModel(
                             encoder_name=encoder_name,
                             encoder_weights=encoder_weights,
@@ -125,6 +124,7 @@ class SiimCovidAuxModel(nn.Module):
                             pretrained_path=None, 
                             pretrained_num_classes=None)
                 model.load_state_dict(torch.load(encoder_pretrained_path, map_location=torch.device('cpu')))
+                print(f'read encoder body weights from {encoder_pretrained_path}')
             self.encoder = model.encoder
             self.hidden_layer = model.hidden_layer
             del model
@@ -235,16 +235,35 @@ class SiimCovidAuxModel(nn.Module):
                 test_mode=False,
             )
             model.load_state_dict(torch.load(model_pretrained_path, map_location=torch.device('cpu')))
+            print(f"read model weights from {model_pretrained_path}")
 
             self.encoder = model.encoder
             self.hidden_layer = model.hidden_layer
             self.decoder = model.decoder
             self.segmentation_head = model.segmentation_head
-            self.fc = nn.Linear(in_features, 1024, bias=True)
-            self.cls_head = nn.Linear(1024, classes, bias=True)
+            if model_pretrained_num_classes == classes:
+                self.fc = model.fc
+                self.cls_head = model.cls_head
+            elif encoder_pretrained_num_classes == classes:
+                self.fc = nn.Linear(in_features, 1024, bias=True)
+                self.cls_head = nn.Linear(1024, classes, bias=True)
+                encoder_state_dict = torch.load(encoder_pretrained_path, map_location=torch.device('cpu'))
+                self.fc.load_state_dict(encoder_state_dict)
+                self.cls_head.load_state_dict(encoder_state_dict)
+                del encoder_state_dict
+                print(f"read encoder head weights from {encoder_pretrained_path}")
+            else:
+                self.fc = nn.Linear(in_features, 1024, bias=True)
+                self.cls_head = nn.Linear(1024, classes, bias=True)
+                init.initialize_head(self.fc)
+                init.initialize_head(self.cls_head)
+                print("initialized encoder head")
             del model
-            init.initialize_head(self.fc)
-            init.initialize_head(self.cls_head)
+
+            # Update body weights (iterative training) if both model_pretrained and encoder_pretrained are specified
+            if encoder_pretrained_path is not None:
+                encoder_state_dict = torch.load(encoder_pretrained_path, map_location=torch.device('cpu'))
+                self.encoder.load_state_dict(encoder_state_dict)
 
     @autocast()
     def forward(self, x):

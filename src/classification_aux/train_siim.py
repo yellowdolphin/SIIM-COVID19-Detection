@@ -34,7 +34,7 @@ parser.add_argument("--lr", type=float)
 parser.add_argument("--seed", type=int)
 parser.add_argument("--aux_weight", type=float)
 parser.add_argument("--encoder_act", default=None, type=str)
-parser.add_argument("--from_scratch", default=False, type=lambda x: (str(x).lower() == "true"))
+parser.add_argument("--restart", default=None, type=str, choices='chexpert chest14 rsna siim'.split())
 
 args = parser.parse_args()
 print(args)
@@ -98,9 +98,33 @@ if __name__ == "__main__":
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         encoder_act_layer = args.encoder_act or (cfg['encoder_act_layer'] if 'encoder_act_layer' in cfg else None)
-        encoder_weights = cfg['encoder_weights'] if args.from_scratch else None
-        model_pretrained_path = None if args.from_scratch else 'rsnapneu_pretrain/{}_{}_{}_rsnapneu.pth'.format(
-            cfg['encoder_name'], cfg['aux_image_size'], cfg['decoder'])
+
+        encoder_weights = cfg['encoder_weights'] if args.restart is None else None
+        if args.restart.lower() == 'chexpert':
+            encoder_pretrained_path = f"chexpert_chest14_pretrain/{cfg['encoder_name']}_{cfg['chexpert_image_size']}_pretrain_step0.pth"
+            encoder_pretrained_num_classes = len(chexpert_classes)
+            model_pretrained_path = model_pretrained_num_classes = None
+        elif args.restart.lower() == 'chest14':
+            encoder_pretrained_path = f"chexpert_chest14_pretrain/{cfg['encoder_name']}_{cfg['chest14_image_size']}_pretrain_step1.pth"
+            encoder_pretrained_num_classes = len(chest14_classes)
+            model_pretrained_path = model_pretrained_num_classes = None
+        elif args.restart.lower() == 'rsna':
+            encoder_pretrained_path = f"rsnapneu_pretrain/{cfg['encoder_name']}_{cfg['aux_image_size']}_{cfg['decoder']}_rsnapneu.pth"
+            encoder_pretrained_num_classes = len(rsnapneumonia_classes)
+            model_pretrained_path = f"checkpoints/{cfg['encoder_name']}_{cfg['aux_image_size']}_{cfg['decoder']}_aux_fold{fold}.pth"
+            model_pretrained_num_classes = len(classes)
+            if os.path.exists(model_pretrained_path):
+                print("Found siim checkpoint from previous iteration, will use it for cls_head and decoder.")
+            else:
+                model_pretrained_path = model_pretrained_num_classes = None
+        elif args.restart.lower() == 'siim':
+            encoder_pretrained_path = encoder_pretrained_num_classes = None
+            model_pretrained_path = f"checkpoints/{cfg['encoder_name']}_{cfg['aux_image_size']}_{cfg['decoder']}_aux_fold{fold}.pth"
+            model_pretrained_num_classes = len(classes)
+        else:
+            encoder_pretrained_path = model_pretrained_path = None
+            encoder_pretrained_num_classes = model_pretrained_num_classes = None
+
         model = SiimCovidAuxModel(
             encoder_name=cfg['encoder_name'],
             encoder_weights=encoder_weights,
@@ -109,10 +133,10 @@ if __name__ == "__main__":
             classes=len(classes),
             in_features=cfg['in_features'],
             decoder_channels=cfg['decoder_channels'],
-            encoder_pretrained_path=None,
-            encoder_pretrained_num_classes=None,
+            encoder_pretrained_path=encoder_pretrained_path,
+            encoder_pretrained_num_classes=encoder_pretrained_num_classes,
             model_pretrained_path=model_pretrained_path,
-            model_pretrained_num_classes=len(rsnapneumonia_classes))
+            model_pretrained_num_classes=model_pretrained_num_classes)
 
         if hasattr(model.encoder, 'act1'):
             print("Encoder activation layer:", model.encoder.act1)

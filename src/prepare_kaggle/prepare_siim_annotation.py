@@ -102,7 +102,7 @@ if __name__ == '__main__':
                 x1 = float(arr[6*i+2])
                 y1 = float(arr[6*i+3])
                 x2 = float(arr[6*i+4])
-                y2= float(arr[6*i+5])
+                y2 = float(arr[6*i+5])
                 if x1 >= x2 or y1 >= y2:
                     continue
                 boxes.append([x1, y1, x2, y2])
