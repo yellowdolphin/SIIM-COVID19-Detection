@@ -266,7 +266,7 @@ class SiimCovidAuxModel(nn.Module):
             if encoder_pretrained_path is not None:
                 encoder_state_dict = torch.load(encoder_pretrained_path, map_location=torch.device('cpu'))
                 encoder_state_dict = {k.lstrip('encoder.'): v for k, v in encoder_state_dict.items() if k.startswith('encoder.')}
-                self.encoder.load_state_dict(encoder_state_dict['encoder'])
+                self.encoder.load_state_dict(encoder_state_dict)
                 del encoder_state_dict
 
     @autocast()
