@@ -100,7 +100,10 @@ if __name__ == "__main__":
         encoder_act_layer = args.encoder_act or (cfg['encoder_act_layer'] if 'encoder_act_layer' in cfg else None)
 
         encoder_weights = cfg['encoder_weights'] if args.restart is None else None
-        if args.restart.lower() == 'chexpert':
+        if args.restart is None or args.restart.lower() == 'none':
+            encoder_pretrained_path = model_pretrained_path = None
+            encoder_pretrained_num_classes = model_pretrained_num_classes = None
+        elif args.restart.lower() == 'chexpert':
             encoder_pretrained_path = f"chexpert_chest14_pretrain/{cfg['encoder_name']}_{cfg['chexpert_image_size']}_pretrain_step0.pth"
             encoder_pretrained_num_classes = len(chexpert_classes)
             model_pretrained_path = model_pretrained_num_classes = None
@@ -121,9 +124,6 @@ if __name__ == "__main__":
             encoder_pretrained_path = encoder_pretrained_num_classes = None
             model_pretrained_path = f"checkpoints/{cfg['encoder_name']}_{cfg['aux_image_size']}_{cfg['decoder']}_aux_fold{fold}.pth"
             model_pretrained_num_classes = len(classes)
-        else:
-            encoder_pretrained_path = model_pretrained_path = None
-            encoder_pretrained_num_classes = model_pretrained_num_classes = None
 
         model = SiimCovidAuxModel(
             encoder_name=cfg['encoder_name'],

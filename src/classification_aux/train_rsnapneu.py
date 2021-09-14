@@ -46,7 +46,7 @@ if __name__ == "__main__":
 
     ckpt_dir = 'rsnapneu_pretrain'
     os.makedirs(ckpt_dir, exist_ok = True)
-    print('Train pneumonia')
+    print('Train on RSNA-Pneumonia')
     train_df = pd.read_csv('../../dataset/external_dataset/ext_csv/rsnapneumonia_train.csv')
     valid_df = pd.read_csv('../../dataset/external_dataset/ext_csv/rsnapneumonia_valid.csv')
     
@@ -75,7 +75,10 @@ if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     encoder_weights = cfg['encoder_weights'] if args.restart is None else None
-    if args.restart.lower() == 'chexpert':
+    if args.restart is None or args.restart.lower() == 'none':
+        encoder_pretrained_path = model_pretrained_path = None
+        encoder_pretrained_num_classes = model_pretrained_num_classes = None
+    elif args.restart.lower() == 'chexpert':
         encoder_pretrained_path = f"chexpert_chest14_pretrain/{cfg['encoder_name']}_{cfg['chexpert_image_size']}_pretrain_step0.pth"
         encoder_pretrained_num_classes = len(chexpert_classes)
         model_pretrained_path = model_pretrained_num_classes = None
@@ -98,9 +101,6 @@ if __name__ == "__main__":
             print("Found rsna checkpoint from previous iteration, will use it for cls_head and decoder.")
         else:
             model_pretrained_path = model_pretrained_num_classes = None
-    else:
-        encoder_pretrained_path = model_pretrained_path = None
-        encoder_pretrained_num_classes = model_pretrained_num_classes = None
         
     encoder_act_layer = args.encoder_act or cfg['encoder_act_layer'] if 'encoder_act_layer' in cfg else None
     model = SiimCovidAuxModel(
