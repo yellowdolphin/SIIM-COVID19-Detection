@@ -21,11 +21,13 @@ class PretrainModel(nn.Module):
         encoder_act_layer=None,
         classes: int = 4,
         in_features: int = 2560, 
+        dropout_ps: List[float] = [0.2, 0.05],
         pretrained_path=None, 
         pretrained_num_classes=None,
     ):
         super(PretrainModel, self).__init__()
         self.in_features = in_features
+        self.dropout_ps = dropout_ps
         if pretrained_path is None:
             self.encoder = get_encoder(
                 encoder_name,
@@ -76,9 +78,10 @@ class PretrainModel(nn.Module):
         x = self.encoder(x)[-1]
         x = self.hidden_layer(x)
         x = x.view(-1, self.in_features)
+        x = F.dropout(x, p=self.dropout_ps[0], training=self.training)
         x = self.fc(x)
         x = F.relu(x)
-        x = F.dropout(x, p=0.5, training=self.training)
+        x = F.dropout(x, p=self.dropout_ps[1], training=self.training)
         x = self.cls_head(x)
         return x
 
@@ -94,6 +97,7 @@ class SiimCovidAuxModel(nn.Module):
         decoder: Optional[str] = 'unet',
         classes: int = 4,
         in_features: int = 2560,
+        dropout_ps: List[float] = [0.2, 0.05],
         encoder_pretrained_path=None, 
         encoder_pretrained_num_classes=None,
         model_pretrained_path=None, 
@@ -102,6 +106,7 @@ class SiimCovidAuxModel(nn.Module):
     ):
         super(SiimCovidAuxModel, self).__init__()
         self.in_features = in_features
+        self.dropout_ps = dropout_ps
         self.test_mode = test_mode
 
         if model_pretrained_path is None:
@@ -276,9 +281,10 @@ class SiimCovidAuxModel(nn.Module):
             features = self.encoder(x)
             xcls = self.hidden_layer(features[-1])
             xcls = xcls.view(-1, self.in_features)
+            xcls = F.dropout(xcls, p=self.dropout_ps[0], training=self.training)
             xcls = self.fc(xcls)
             xcls = F.relu(xcls)
-            xcls = F.dropout(xcls, p=0.5, training=self.training)
+            xcls = F.dropout(xcls, p=self.dropout_ps[1], training=self.training)
             xcls = self.cls_head(xcls)
             return xcls
         else:
@@ -288,9 +294,10 @@ class SiimCovidAuxModel(nn.Module):
 
             xcls = self.hidden_layer(features[-1])
             xcls = xcls.view(-1, self.in_features)
+            xcls = F.dropout(xcls, p=self.dropout_ps[0], training=self.training)
             xcls = self.fc(xcls)
             xcls = F.relu(xcls)
-            xcls = F.dropout(xcls, p=0.5, training=self.training)
+            xcls = F.dropout(xcls, p=self.dropout_ps[1], training=self.training)
             xcls = self.cls_head(xcls)
 
             return xseg, xcls
