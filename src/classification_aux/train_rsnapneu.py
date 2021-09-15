@@ -34,6 +34,7 @@ parser.add_argument("--patience", default=8, type=int)
 parser.add_argument("--seed", default=123, type=int)
 parser.add_argument("--aux_weight", type=float)
 parser.add_argument("--encoder_act", type=str)
+parser.add_argument("--dropout_ps", default=[0.20, 0.05], nargs="+", type=float)
 parser.add_argument("--restart", type=str, choices='chexpert chest14 rsna siim'.split())
 
 args = parser.parse_args()
@@ -79,6 +80,7 @@ if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     encoder_act_layer = args.encoder_act or cfg['encoder_act_layer'] if 'encoder_act_layer' in cfg else None
+    dropout_ps = args.dropout_ps
 
     encoder_weights = cfg['encoder_weights'] if args.restart is None else None
     if args.restart is None or args.restart.lower() == 'none':
@@ -115,6 +117,7 @@ if __name__ == "__main__":
         decoder=cfg['decoder'],
         classes=len(rsnapneumonia_classes),
         in_features=cfg['in_features'],
+        dropout_ps=dropout_ps,
         decoder_channels=cfg['decoder_channels'],
         encoder_pretrained_path=encoder_pretrained_path,
         encoder_pretrained_num_classes=encoder_pretrained_num_classes,
