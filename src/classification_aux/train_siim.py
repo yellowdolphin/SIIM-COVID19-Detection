@@ -292,7 +292,7 @@ if __name__ == "__main__":
             if count > args.patience:
                 break
 
-            if ('scheduler' in globals()) and scheduler is not None: 
+            if ('scheduler' in globals()) and scheduler is not None:
                 scheduler.step()
         
         with open(LOG, 'a') as log_file:

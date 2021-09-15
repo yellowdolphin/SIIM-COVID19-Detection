@@ -200,7 +200,6 @@ if __name__ == "__main__":
             loop.set_postfix(loss=np.mean(train_loss), iou=np.mean(train_iou))
         train_loss = np.mean(train_loss)
         train_iou = np.mean(train_iou)
-        scheduler.step()
 
         model.eval()
 
@@ -240,6 +239,9 @@ if __name__ == "__main__":
         
         if count > args.patience:
             break
+
+        if ('scheduler' in globals()) and scheduler is not None:
+            scheduler.step()
     
     log_file = open(LOG, 'a')
     log_file.write('Best epoch {} | val loss min: {}\n'.format(best_epoch, val_loss_min))
