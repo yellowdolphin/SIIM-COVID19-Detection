@@ -23,26 +23,28 @@ from utils import seed_everything
 import warnings
 warnings.filterwarnings("ignore")
 
+# Don't set default (=>None) if kwarg is defined in cfg!
 parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("--cfg", default='configs/seresnet152d_512_unet.yaml', type=str)
 parser.add_argument("--frac", default=1.0, type=float)
-parser.add_argument("--epochs", default=15, type=int)
+parser.add_argument("--epochs", type=int)
+parser.add_argument("--bs", type=int)
+parser.add_argument("--lr", type=float)
 parser.add_argument("--patience", default=8, type=int)
-parser.add_argument("--seed", type=int)
-parser.add_argument("--encoder_act", default=None, type=str)
-parser.add_argument("--restart", default=None, type=str, choices='chexpert chest14 rsna siim'.split())
+parser.add_argument("--seed", default=123, type=int)
+parser.add_argument("--aux_weight", type=float)
+parser.add_argument("--encoder_act", type=str)
+parser.add_argument("--restart", type=str, choices='chexpert chest14 rsna siim'.split())
 
 args = parser.parse_args()
 print(args)
 
-SEED = args.seed or 123
+SEED = args.seed
 seed_everything(SEED)
 
 if __name__ == "__main__":
     with open(args.cfg) as f:
         cfg = yaml.load(f, Loader=yaml.FullLoader)
-    cfg['aux_epochs'] = args.epochs
-    cfg['aux_weight'] = 0.5
     print(cfg)
 
     ckpt_dir = 'rsnapneu_pretrain'
@@ -65,7 +67,7 @@ if __name__ == "__main__":
         images_dir='.',
         image_size=cfg['aux_image_size'], mode='valid')
 
-    batch_size = cfg['aux_batch_size']
+    batch_size = args.bs or cfg['aux_batch_size']
     train_loader = DataLoader(train_dataset, batch_size=batch_size, sampler=RandomSampler(train_dataset), 
                               num_workers=cpu_count(), drop_last=True)
     valid_loader = DataLoader(valid_dataset, batch_size=batch_size, sampler=SequentialSampler(valid_dataset), 
@@ -75,6 +77,8 @@ if __name__ == "__main__":
     print(f'VALID: {len(valid_loader):5} batches of {batch_size} (or less)   => {len(valid_loader.dataset):6} images')
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    encoder_act_layer = args.encoder_act or cfg['encoder_act_layer'] if 'encoder_act_layer' in cfg else None
 
     encoder_weights = cfg['encoder_weights'] if args.restart is None else None
     if args.restart is None or args.restart.lower() == 'none':
@@ -104,7 +108,6 @@ if __name__ == "__main__":
         else:
             model_pretrained_path = model_pretrained_num_classes = None
         
-    encoder_act_layer = args.encoder_act or cfg['encoder_act_layer'] if 'encoder_act_layer' in cfg else None
     model = SiimCovidAuxModel(
         encoder_name=cfg['encoder_name'],
         encoder_weights=encoder_weights,
@@ -125,13 +128,12 @@ if __name__ == "__main__":
 
     cls_criterion = nn.BCEWithLogitsLoss()
     seg_criterion = DiceLoss()
+    aux_weight = cfg['aux_weight'] if args.aux_weight is None else args.aux_weight
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=cfg['aux_init_lr'])
-    if cfg['aux_epochs'] > 1:
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, cfg['aux_epochs']-1)
-    else:
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, cfg['aux_epochs'])
-
+    lr = args.lr or cfg['aux_init_lr']
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    epochs = args.epochs or cfg['aux_epochs']
+    #scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, epochs)
 
     scaler = torch.cuda.amp.GradScaler()
 
@@ -150,7 +152,8 @@ if __name__ == "__main__":
 
     iou_func = IoU(eps=1e-7, threshold=0.5, activation=None, ignore_channels=None)
 
-    for epoch in range(cfg['aux_epochs']):
+    print(f"Training for {epochs} epochs with bs={batch_size}, initial lr={lr}, aux_weight={aux_weight}, seed={SEED}")
+    for epoch in range(epochs):
         model.train()
         train_loss = []
         train_iou = []
@@ -175,7 +178,7 @@ if __name__ == "__main__":
                     seg_outputs, cls_outputs = model(images)
                     cls_loss = lam * cls_criterion(cls_outputs, labels_a) + (1 - lam) * cls_criterion(cls_outputs, labels_b)
                     seg_loss = lam * seg_criterion(seg_outputs, masks_a) + (1 - lam) * seg_criterion(seg_outputs, masks_b)
-                    loss = cfg['aux_weight']*cls_loss + (1-cfg['aux_weight'])*seg_loss
+                    loss = aux_weight * cls_loss + (1 - aux_weight) * seg_loss
 
                     train_iou.append(iou_func(seg_outputs, masks).item())
                     train_loss.append(loss.item())
@@ -184,7 +187,7 @@ if __name__ == "__main__":
                     seg_outputs, cls_outputs = model(images)
                     cls_loss = cls_criterion(cls_outputs, labels)
                     seg_loss = seg_criterion(seg_outputs, masks)
-                    loss = cfg['aux_weight']*cls_loss + (1-cfg['aux_weight'])*seg_loss
+                    loss = aux_weight * cls_loss + (1 - aux_weight) * seg_loss
 
                     train_iou.append(iou_func(seg_outputs, masks).item())
                     train_loss.append(loss.item())
@@ -193,7 +196,7 @@ if __name__ == "__main__":
             scaler.step(optimizer)
             scaler.update()
 
-            loop.set_description('Epoch {}/{} | LR: {:.5f}'.format(epoch + 1, cfg['aux_epochs'], optimizer.param_groups[0]['lr']))
+            loop.set_description('Epoch {}/{} | LR: {:.5f}'.format(epoch + 1, epochs, optimizer.param_groups[0]['lr']))
             loop.set_postfix(loss=np.mean(train_loss), iou=np.mean(train_iou))
         train_loss = np.mean(train_loss)
         train_iou = np.mean(train_iou)
@@ -212,7 +215,7 @@ if __name__ == "__main__":
                 seg_outputs, cls_outputs = model(images)
                 cls_loss = cls_criterion(cls_outputs, labels)
                 seg_loss = seg_criterion(seg_outputs, masks)
-                loss = cfg['aux_weight']*cls_loss + (1-cfg['aux_weight'])*seg_loss
+                loss = aux_weight * cls_loss + (1 - aux_weight) * seg_loss
 
                 val_iou += iou_func(seg_outputs, masks).item()*images.size(0)
                 val_loss += loss.item()*images.size(0)

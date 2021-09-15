@@ -22,6 +22,7 @@ from utils import seed_everything, refine_dataframe, get_study_map
 import warnings
 warnings.filterwarnings("ignore")
 
+# Don't set default (=>None) if kwarg is defined in cfg!
 parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("--cfg", default='configs/seresnet152d_512_unet.yaml', type=str)
 parser.add_argument("--folds", default=[0,1,2,3,4], nargs="+", type=int)
@@ -31,10 +32,10 @@ parser.add_argument("--weighted", default=True, type=lambda x: (str(x).lower() =
 parser.add_argument("--epochs", type=int)
 parser.add_argument("--bs", type=int)
 parser.add_argument("--lr", type=float)
-parser.add_argument("--seed", type=int)
+parser.add_argument("--seed", default=123, type=int)
 parser.add_argument("--aux_weight", type=float)
-parser.add_argument("--encoder_act", default=None, type=str)
-parser.add_argument("--restart", default=None, type=str, choices='chexpert chest14 rsna siim'.split())
+parser.add_argument("--encoder_act", type=str)
+parser.add_argument("--restart", type=str, choices='chexpert chest14 rsna siim'.split())
 
 args = parser.parse_args()
 print(args)
@@ -44,7 +45,7 @@ print(args)
 image_source = '/kaggle/input/siim-covid19-resized-to-512px-png/train'
 image_suffix = 'png'
 
-SEED = args.seed or 123
+SEED = args.seed
 seed_everything(SEED)
 
 if __name__ == "__main__":
