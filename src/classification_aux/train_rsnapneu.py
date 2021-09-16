@@ -159,6 +159,7 @@ if __name__ == "__main__":
     for epoch in range(epochs):
         model.train()
         train_loss = []
+        train_cls = []
         train_iou = []
 
         loop = tqdm(train_loader)
@@ -192,6 +193,7 @@ if __name__ == "__main__":
                     seg_loss = seg_criterion(seg_outputs, masks)
                     loss = aux_weight * cls_loss + (1 - aux_weight) * seg_loss
 
+                    train_cls.append(cls_loss.item())
                     train_iou.append(iou_func(seg_outputs, masks).item())
                     train_loss.append(loss.item())
 
@@ -202,11 +204,13 @@ if __name__ == "__main__":
             loop.set_description('Epoch {}/{} | LR: {:.5f}'.format(epoch + 1, epochs, optimizer.param_groups[0]['lr']))
             loop.set_postfix(loss=np.mean(train_loss), iou=np.mean(train_iou))
         train_loss = np.mean(train_loss)
+        train_cls = np.mean(train_cls)
         train_iou = np.mean(train_iou)
 
         model.eval()
 
         val_loss = 0
+        val_cls = 0
         val_iou = 0
         for images, masks, labels in tqdm(valid_loader):
             images = images.to(device)
@@ -219,16 +223,18 @@ if __name__ == "__main__":
                 seg_loss = seg_criterion(seg_outputs, masks)
                 loss = aux_weight * cls_loss + (1 - aux_weight) * seg_loss
 
+                val_cls += cls_loss
                 val_iou += iou_func(seg_outputs, masks).item()*images.size(0)
                 val_loss += loss.item()*images.size(0)
 
+        val_cls /= len(valid_loader.dataset)
         val_iou /= len(valid_loader.dataset)
         val_loss /= len(valid_loader.dataset)
 
         print('train iou: {:.5f} | train loss: {:.5f} | val_iou: {:.5f} | val_loss: {:.5f}'.format(train_iou, train_loss, val_iou, val_loss))
         log_file = open(LOG, 'a')
-        log_file.write('{}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}\n'.format(
-            epoch, optimizer.param_groups[0]['lr'], train_iou, train_loss, val_iou, val_loss))
+        log_file.write('{}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}\n'.format(
+            epoch + 1, optimizer.param_groups[0]['lr'], train_cls, train_iou, train_loss, val_cls, val_iou, val_loss))
         log_file.close()
 
         if val_loss < val_loss_min:
