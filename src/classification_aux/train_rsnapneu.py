@@ -240,7 +240,7 @@ if __name__ == "__main__":
         if val_loss < val_loss_min:
             print('Valid loss improved from {:.5f} to {:.5f} saving model to {}'.format(val_loss_min, val_loss, CHECKPOINT))
             val_loss_min = val_loss
-            best_epoch = epoch
+            best_epoch = epoch + 1
             count = 0
             torch.save(model.state_dict(), CHECKPOINT)
         else:
