@@ -223,9 +223,9 @@ if __name__ == "__main__":
                 seg_loss = seg_criterion(seg_outputs, masks)
                 loss = aux_weight * cls_loss + (1 - aux_weight) * seg_loss
 
-                val_cls += cls_loss
-                val_iou += iou_func(seg_outputs, masks).item()*images.size(0)
-                val_loss += loss.item()*images.size(0)
+                val_cls += cls_loss.item() * images.size(0)
+                val_iou += iou_func(seg_outputs, masks).item() * images.size(0)
+                val_loss += loss.item() * images.size(0)
 
         val_cls /= len(valid_loader.dataset)
         val_iou /= len(valid_loader.dataset)
