@@ -147,7 +147,7 @@ if __name__ == "__main__":
     if os.path.isfile(LOG):
         os.remove(LOG)
     log_file = open(LOG, 'a')
-    log_file.write('epoch, lr, train_iou, train_loss, val_iou, val_loss\n')
+    log_file.write('epoch, lr, train_cls, train_iou, train_loss, val_cls, val_iou, val_loss\n')
     log_file.close()
 
     count = 0
