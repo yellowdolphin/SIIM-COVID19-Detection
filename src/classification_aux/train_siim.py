@@ -159,7 +159,7 @@ if __name__ == "__main__":
         lr = args.lr or cfg['aux_init_lr']
         optimizer = torch.optim.Adam(model.parameters(), lr=lr)
         epochs = args.epochs or cfg['aux_epochs']
-        #scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, epochs)
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, epochs)
 
         scaler = torch.cuda.amp.GradScaler()
 
