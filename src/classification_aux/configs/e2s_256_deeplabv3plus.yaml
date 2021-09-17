@@ -5,7 +5,7 @@ in_features: 1280
 chexpert_image_size: 256
 chexpert_batch_size: 28      # orig: 28
 chexpert_init_lr:    1.5e-4  # orig: 1.5e-4
-chexpert_epochs:     1       # orig: 10
+chexpert_epochs:     7       # orig: 10
 
 chest14_image_size: 256
 chest14_batch_size: 28
