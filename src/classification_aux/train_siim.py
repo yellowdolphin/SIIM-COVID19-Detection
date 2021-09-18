@@ -14,6 +14,8 @@ from timm.utils.model_ema import ModelEmaV2  # exp moving averaging of model wei
 from segmentation_models_pytorch.utils.losses import DiceLoss
 from segmentation_models_pytorch.utils.metrics import IoU
 
+from sklearn.metrics import f1_score
+
 from models import SiimCovidAuxModel
 from dataset import SiimCovidAuxDataset, classes, rsnapneumonia_classes, chexpert_classes, chest14_classes
 
@@ -262,7 +264,7 @@ if __name__ == "__main__":
                     ema_seg_outputs, ema_cls_outputs = model_ema.module(images)
                     cls_ema_preds.append(torch.sigmoid(ema_cls_outputs).data.cpu().numpy())
 
-                    emal_val_iou += iou_func(ema_seg_outputs, masks).item()*images.size(0)
+                    emal_val_iou += iou_func(ema_seg_outputs, masks).item() * images.size(0)
 
             valid_cls_loss = np.mean(valid_cls_loss)
             cls_preds = np.vstack(cls_preds)
@@ -275,13 +277,16 @@ if __name__ == "__main__":
             val_map = get_study_map(valid_df, pred_dict, stride=0.01)['mAP']
             ema_val_map = get_study_map(valid_df, ema_pred_dict, stride=0.01)['mAP']
             emal_val_iou /= len(valid_loader.dataset)
+
+            valid_labels = valid_df[classes].to_numpy().argmax(axis=1)
+            f1 = f1_score(valid_labels, cls_preds, average='macro', labels=valid_labels)
             
             print('train loss: {:.5f} | train iou: {:.5f} | ema_val_iou: {:.5f} | val_map: {:.5f} | ema_val_map: {:.5f}'.format(
                 train_loss, train_iou, emal_val_iou, val_map, ema_val_map))
             with open(LOG, 'a') as log_file:
-                log_file.write('{}, {:.3e}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}\n'.format(
+                log_file.write('{}, {:.3e}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}, {:.5f}\n'.format(
                     epoch + 1, optimizer.param_groups[0]['lr'], train_loss, train_cls_loss, train_iou, valid_cls_loss, 
-                    emal_val_iou, val_map, ema_val_map))
+                    emal_val_iou, val_map, ema_val_map, f1))
 
             if ema_val_map > ema_val_map_max:
                 print('Ema valid map improved from {:.5f} to {:.5f} saving model to {}'.format(ema_val_map_max, ema_val_map, CHECKPOINT))
