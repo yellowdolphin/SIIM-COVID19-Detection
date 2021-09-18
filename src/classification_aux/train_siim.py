@@ -172,7 +172,7 @@ if __name__ == "__main__":
         if os.path.isfile(LOG):
             os.remove(LOG)
         with open(LOG, 'a') as log_file:
-            log_file.write('epoch, lr, train_loss, train_cls_loss, train_iou, valid_cls_loss, ema_val_iou, val_map, ema_val_map\n')
+            log_file.write('epoch, lr, train_loss, train_cls_loss, train_iou, valid_cls_loss, ema_val_iou, val_map, ema_val_map, F1\n')
     
         count = 0
         best_epoch = 0
