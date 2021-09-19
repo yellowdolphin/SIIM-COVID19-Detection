@@ -221,7 +221,8 @@ if __name__ == "__main__":
                         #cls_loss = cls_criterion(cls_outputs, labels)
                         cls_loss = cls_criterion(cls_outputs, labels.argmax(dim=1))
                         if args.weighted:
-                            cls_loss = torch.mean(torch.sum(cls_loss, 1),0)
+                            #cls_loss = torch.mean(torch.sum(cls_loss, 1),0)
+                            cls_loss = torch.mean(cls_loss, 0)
                         seg_loss = seg_criterion(seg_outputs, masks)
                         loss = aux_weight * cls_loss + (1 - aux_weight) * seg_loss
 
