@@ -151,9 +151,11 @@ if __name__ == "__main__":
         model.to(device)
     
         if args.weighted:  ## why not nn.CrossEntropyLoss()???
-            cls_criterion = nn.BCEWithLogitsLoss(weight=torch.FloatTensor([0.2, 0.2, 0.3, 0.3]).to(device), reduction='none')
+            #cls_criterion = nn.BCEWithLogitsLoss(weight=torch.FloatTensor([0.2, 0.2, 0.3, 0.3]).to(device), reduction='none')
+            cls_criterion = nn.CrossEntropyLoss(weight=torch.FloatTensor([0.2, 0.2, 0.3, 0.3]).to(device), reduction='none')
         else:
-            cls_criterion = nn.BCEWithLogitsLoss()
+            #cls_criterion = nn.BCEWithLogitsLoss()
+            cls_criterion = nn.CrossEntropyLoss()
 
         seg_criterion = DiceLoss()
         aux_weight = cfg['aux_weight'] if args.aux_weight is None else args.aux_weight
@@ -216,7 +218,8 @@ if __name__ == "__main__":
                 else:
                     with torch.cuda.amp.autocast():
                         seg_outputs, cls_outputs = model(images)
-                        cls_loss = cls_criterion(cls_outputs, labels)
+                        #cls_loss = cls_criterion(cls_outputs, labels)
+                        cls_loss = cls_criterion(cls_outputs, labels.argmax(dim=1))
                         if args.weighted:
                             cls_loss = torch.mean(torch.sum(cls_loss, 1),0)
                         seg_loss = seg_criterion(seg_outputs, masks)
