@@ -265,10 +265,12 @@ if __name__ == "__main__":
                         #cls_loss = torch.mean(torch.sum(cls_loss, 1),0)
                         cls_loss = torch.mean(cls_loss, 0)
                     valid_cls_loss.append(cls_loss.item())
-                    cls_preds.append(torch.sigmoid(cls_outputs).data.cpu().numpy())  ## why not softmax()?
+                    #cls_preds.append(torch.sigmoid(cls_outputs).data.cpu().numpy())  ## why not softmax()?
+                    cls_preds.append(torch.softmax(cls_outputs, dim=1).data.cpu().numpy())
 
                     ema_seg_outputs, ema_cls_outputs = model_ema.module(images)
-                    cls_ema_preds.append(torch.sigmoid(ema_cls_outputs).data.cpu().numpy())
+                    #cls_ema_preds.append(torch.sigmoid(ema_cls_outputs).data.cpu().numpy())
+                    cls_ema_preds.append(torch.softmax(ema_cls_outputs, dim=1).data.cpu().numpy())
 
                     emal_val_iou += iou_func(ema_seg_outputs, masks).item() * images.size(0)
 
