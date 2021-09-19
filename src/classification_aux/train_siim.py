@@ -259,9 +259,11 @@ if __name__ == "__main__":
 
                 with torch.cuda.amp.autocast(), torch.no_grad():
                     _, cls_outputs = model(images)
-                    cls_loss = cls_criterion(cls_outputs, labels)
+                    #cls_loss = cls_criterion(cls_outputs, labels)
+                    cls_loss = cls_criterion(cls_outputs, labels.argmax(dim=1))
                     if args.weighted:
-                        cls_loss = torch.mean(torch.sum(cls_loss, 1),0)
+                        #cls_loss = torch.mean(torch.sum(cls_loss, 1),0)
+                        cls_loss = torch.mean(cls_loss, 0)
                     valid_cls_loss.append(cls_loss.item())
                     cls_preds.append(torch.sigmoid(cls_outputs).data.cpu().numpy())  ## why not softmax()?
 
