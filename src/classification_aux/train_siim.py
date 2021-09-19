@@ -150,7 +150,7 @@ if __name__ == "__main__":
         model_ema = ModelEmaV2(model, decay=cfg['model_ema_decay'], device=device)
         model.to(device)
     
-        if args.weighted:
+        if args.weighted:  ## why not nn.CrossEntropyLoss()???
             cls_criterion = nn.BCEWithLogitsLoss(weight=torch.FloatTensor([0.2, 0.2, 0.3, 0.3]).to(device), reduction='none')
         else:
             cls_criterion = nn.BCEWithLogitsLoss()
@@ -259,7 +259,7 @@ if __name__ == "__main__":
                     if args.weighted:
                         cls_loss = torch.mean(torch.sum(cls_loss, 1),0)
                     valid_cls_loss.append(cls_loss.item())
-                    cls_preds.append(torch.sigmoid(cls_outputs).data.cpu().numpy())
+                    cls_preds.append(torch.sigmoid(cls_outputs).data.cpu().numpy())  ## why not softmax()?
 
                     ema_seg_outputs, ema_cls_outputs = model_ema.module(images)
                     cls_ema_preds.append(torch.sigmoid(ema_cls_outputs).data.cpu().numpy())
@@ -279,7 +279,7 @@ if __name__ == "__main__":
             emal_val_iou /= len(valid_loader.dataset)
 
             valid_labels = valid_df[classes].to_numpy().argmax(axis=1)
-            f1 = f1_score(valid_labels, cls_preds, average='macro', labels=valid_labels)
+            f1 = f1_score(valid_labels, cls_preds.argmax(axis=1), average='macro', labels=valid_labels)
             
             print('train loss: {:.5f} | train iou: {:.5f} | ema_val_iou: {:.5f} | val_map: {:.5f} | ema_val_map: {:.5f}'.format(
                 train_loss, train_iou, emal_val_iou, val_map, ema_val_map))
