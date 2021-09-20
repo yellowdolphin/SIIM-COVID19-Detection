@@ -1,0 +1,23 @@
+encoder_name: 'tf_efficientnetv2_m_in21ft1k'
+encoder_weights: 'infer'
+in_features: 1280
+
+chexpert_image_size: 512
+chexpert_batch_size: 12      # orig: 28
+chexpert_init_lr:    0.8e-4  # orig: 1.5e-4
+chexpert_epochs:     1       # orig: 10
+
+chest14_image_size: 512
+chest14_batch_size: 28
+chest14_init_lr: 0.0001
+chest14_epochs: 15
+
+aux_image_size: 512
+aux_batch_size: 8       # orig 18
+aux_init_lr: 0.5e-4     # orig 1e-4
+aux_epochs: 20          # orig: 30
+decoder: 'deeplabv3plus'
+decoder_channels: 256
+aux_mixup: False
+aux_weight: 0.6
+model_ema_decay: 0.997
