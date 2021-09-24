@@ -25,6 +25,8 @@ parser.add_argument("--frac", default=1.0, type=float)
 parser.add_argument("--warmup-factor", default=10, type=int)
 parser.add_argument("--encoder_act", default=None, type=str)
 parser.add_argument("--restart", type=str, choices='chexpert chest14 rsna siim'.split())
+parser.add_argument("--lr", type=float)
+parser.add_argument("--epochs", type=int)
 
 args = parser.parse_args()
 print(args)
@@ -48,8 +50,8 @@ if __name__ == "__main__":
             batch_size = cfg['chexpert_batch_size']
             image_size = cfg['chexpert_image_size']
             dst_classes = chexpert_classes
-            init_lr = cfg['chexpert_init_lr']
-            epochs = cfg['chexpert_epochs']
+            init_lr = args.lr or cfg['chexpert_init_lr']
+            epochs = args.epochs or cfg['chexpert_epochs']
             encoder_weights = cfg['encoder_weights'] if 'encoder_weights' in cfg else None
             if args.restart is None or args.restart.lower() == 'none':
                 pretrained_path = None
