@@ -24,6 +24,7 @@ parser.add_argument("--steps", default=[0,1], nargs="+", type=int)
 parser.add_argument("--frac", default=1.0, type=float)
 parser.add_argument("--warmup-factor", default=10, type=int)
 parser.add_argument("--encoder_act", default=None, type=str)
+parser.add_argument("--restart", type=str, choices='chexpert chest14 rsna siim'.split())
 
 args = parser.parse_args()
 print(args)
@@ -50,8 +51,12 @@ if __name__ == "__main__":
             init_lr = cfg['chexpert_init_lr']
             epochs = cfg['chexpert_epochs']
             encoder_weights = cfg['encoder_weights'] if 'encoder_weights' in cfg else None
-            pretrained_path = None
-            pretrained_num_classes = None
+            if args.restart is None or args.restart.lower() == 'none':
+                pretrained_path = None
+                pretrained_num_classes = None
+            elif args.restart.lower() == 'chexpert':
+                pretrained_path = f"chexpert_chest14_pretrain/{cfg['encoder_name']}_{cfg['chexpert_image_size']}_pretrain_step0.pth"
+                pretrained_num_classes = len(chexpert_classes)
         elif step == 1:
             print('Train chest14')
             train_df = pd.read_csv('../../dataset/external_dataset/ext_csv/chest14_train.csv')
