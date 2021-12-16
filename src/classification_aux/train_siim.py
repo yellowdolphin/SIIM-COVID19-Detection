@@ -144,6 +144,8 @@ if __name__ == "__main__":
             model_pretrained_path=model_pretrained_path,
             model_pretrained_num_classes=model_pretrained_num_classes)
 
+        print(model)
+
         if hasattr(model.encoder, 'act1'):
             print("Encoder activation layer:", model.encoder.act1)
 
